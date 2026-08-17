@@ -1,244 +1,343 @@
-/// Quality Comparison Demo — Premium vs Standard side-by-side
-///
-/// Renders GlassButton, GlassSegmentedControl, GlassCard, and GlassTabBar
-/// with IDENTICAL [LiquidGlassSettings] at both quality levels so you can
-/// directly compare how the thickness/light normalization affects each widget
-/// on the Standard (2D lightweight shader) path.
-///
-/// Settings are deliberately higher than defaults (thickness: 28,
-/// lightIntensity: 0.9) to make the normalization delta clearly visible.
-///
-/// Run standalone:
-///   flutter run -t example/lib/demos/quality_comparison_demo.dart
+// 声明当前 Dart 库文件，支持作为独立测试 Demo 运行
 library;
 
+// 导入 Flutter 官方 Cupertino 风格 iOS 拟真交互控件库
 import 'package:flutter/cupertino.dart';
+// 导入 Flutter 核心 Material Design 基础组件库
 import 'package:flutter/material.dart';
 
+// 导入 liquid_glass_widgets 流体玻璃渲染核心组件库
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
-// ── Thematic presets for testing ─────────────────────────────────────────────
+// ── 预设主题色彩模型类（用于画质对比测试）────────────────────────────────────────
+// 声明主题预设数据承载类
 class _ThemePreset {
+  // 主题预设名称字符串
   final String name;
+  // 玻璃材质基础底色
   final Color glassColor;
+  // 玻璃基础不透明度（Alpha 通道）
   final double baseOpacity;
+  // 玻璃物理厚度（影响高光和折射边缘宽度）
   final double thickness;
+  // 光照反射高光强度
   final double lightIntensity;
+  // 背景模糊高斯模糊半径
   final double blur;
+  // 环境漫反射光强
   final double ambient;
+  // 玻璃色彩饱和度系数
   final double saturation;
+  // 玻璃物理光学折射率 (IOR)
   final double refractiveIndex;
 
+  // 常量构造函数，初始化所有物理渲染参数
   const _ThemePreset({
+    // 必需的主题中文名称
     required this.name,
+    // 必需的玻璃颜色
     required this.glassColor,
+    // 必需的基础透明度
     required this.baseOpacity,
+    // 必需的玻璃厚度
     required this.thickness,
+    // 必需的光照强度
     required this.lightIntensity,
+    // 必需的模糊半径
     required this.blur,
+    // 必需的环境光强
     required this.ambient,
+    // 必需的饱和度
     required this.saturation,
+    // 必需的折射率
     required this.refractiveIndex,
   });
 }
 
+// 定义 8 套汉化后的高级光学主题色彩预设数组
 const _kThemePresets = [
+  // 预设 1：默认纯白（经典苹果透明玻璃风格）
   _ThemePreset(
-    name: 'Default White',
+    // 中文名称：默认纯白
+    name: '默认纯白',
+    // 纯白底色
     glassColor: CupertinoColors.white,
+    // 基础不透明度 12%
     baseOpacity: 0.12,
+    // 物理厚度 28 像素
     thickness: 28.0,
+    // 光照反射强度 0.9
     lightIntensity: 0.9,
+    // 模糊半径 3.0
     blur: 3.0,
+    // 环境漫反射 0.22
     ambient: 0.22,
+    // 饱和度 1.2
     saturation: 1.2,
+    // 折射率 1.25
     refractiveIndex: 1.25,
   ),
+  // 预设 2：翡翠薄荷（高饱和度清新青绿风格）
   _ThemePreset(
-    name: 'Emerald Mint',
-    glassColor: Color(0xFF80CBC4), // Richer teal-mint with more chroma
+    // 中文名称：翡翠薄荷
+    name: '翡翠薄荷',
+    // 青绿色玻璃底色
+    glassColor: Color(0xFF80CBC4),
+    // 基础不透明度 35%
     baseOpacity: 0.35,
+    // 物理厚度 30 像素
     thickness: 30.0,
+    // 光照反射强度 1.1
     lightIntensity: 1.1,
+    // 模糊半径 4.5
     blur: 4.5,
+    // 环境漫反射 0.28
     ambient: 0.28,
+    // 饱和度 1.5
     saturation: 1.5,
+    // 折射率 1.30
     refractiveIndex: 1.30,
   ),
+  // 预设 3：黑曜之夜（极深暗黑系流体玻璃）
   _ThemePreset(
-    name: 'Obsidian Night',
-    glassColor: Color(0xFF1E1E24), // Ultra deep dark obsidian
+    // 中文名称：黑曜之夜
+    name: '黑曜之夜',
+    // 黑曜石深色
+    glassColor: Color(0xFF1E1E24),
+    // 基础不透明度 48%
     baseOpacity: 0.48,
+    // 物理厚度 18 像素
     thickness: 18.0,
+    // 光照反射强度 0.65
     lightIntensity: 0.65,
+    // 模糊半径 4.0
     blur: 4.0,
+    // 环境漫反射 0.12
     ambient: 0.12,
+    // 饱和度 0.95
     saturation: 0.95,
+    // 折射率 1.18
     refractiveIndex: 1.18,
   ),
+  // 预设 4：赛博霓虹（荧光洋红极客电竞风格）
   _ThemePreset(
-    name: 'Cyberpunk Neon',
-    glassColor: Color(0xFFFF007F), // Glowing hot magenta
+    // 中文名称：赛博霓虹
+    name: '赛博霓虹',
+    // 荧光洋红色
+    glassColor: Color(0xFFFF007F),
+    // 基础不透明度 22%
     baseOpacity: 0.22,
+    // 物理厚度 34 像素
     thickness: 34.0,
+    // 光照反射强度 1.35
     lightIntensity: 1.35,
+    // 模糊半径 5.5
     blur: 5.5,
+    // 环境漫反射 0.32
     ambient: 0.32,
+    // 饱和度 1.7
     saturation: 1.7,
+    // 折射率 1.40
     refractiveIndex: 1.40,
   ),
+  // 预设 5：磨砂古铜（奢华暖色调皮革质感）
   _ThemePreset(
-    name: 'Frosted Bronze',
-    glassColor: Color(0xFFD2B48C), // Warm luxury tan bronze tint
+    // 中文名称：磨砂古铜
+    name: '磨砂古铜',
+    // 古铜暖棕色
+    glassColor: Color(0xFFD2B48C),
+    // 基础不透明度 20%
     baseOpacity: 0.20,
+    // 物理厚度 26 像素
     thickness: 26.0,
+    // 光照反射强度 1.0
     lightIntensity: 1.0,
+    // 模糊半径 6.0
     blur: 6.0,
+    // 环境漫反射 0.24
     ambient: 0.24,
+    // 饱和度 1.3
     saturation: 1.3,
+    // 折射率 1.28
     refractiveIndex: 1.28,
   ),
+  // 预设 6：极地冰川（清澈透明浅青冰晶风格）
   _ThemePreset(
-    name: 'Glacial Ice',
-    glassColor: Color(0xFFE0F7FA), // Crisp arctic pale cyan tint
+    // 中文名称：极地冰川
+    name: '极地冰川',
+    // 冰晶浅青色
+    glassColor: Color(0xFFE0F7FA),
+    // 基础不透明度 10%
     baseOpacity: 0.10,
+    // 物理厚度 32 像素
     thickness: 32.0,
+    // 光照反射强度 1.2
     lightIntensity: 1.2,
+    // 模糊半径 2.0
     blur: 2.0,
+    // 环境漫反射 0.18
     ambient: 0.18,
+    // 饱和度 1.25
     saturation: 1.25,
+    // 折射率 1.35
     refractiveIndex: 1.35,
   ),
+  // 预设 7：皇家紫晶（典雅高贵淡紫晶石）
   _ThemePreset(
-    name: 'Royal Amethyst',
-    glassColor: Color(0xFFE1BEE7), // Deep majestic pale purple tint
+    // 中文名称：皇家紫晶
+    name: '皇家紫晶',
+    // 淡紫色
+    glassColor: Color(0xFFE1BEE7),
+    // 基础不透明度 16%
     baseOpacity: 0.16,
+    // 物理厚度 28 像素
     thickness: 28.0,
+    // 光照反射强度 0.95
     lightIntensity: 0.95,
+    // 模糊半径 5.0
     blur: 5.0,
+    // 环境漫反射 0.26
     ambient: 0.26,
+    // 饱和度 1.4
     saturation: 1.4,
+    // 折射率 1.26
     refractiveIndex: 1.26,
   ),
+  // 预设 8：极光幻彩（北极光青绿流动光效）
   _ThemePreset(
-    name: 'Auroral Glow',
-    glassColor: Color(0xFFB2DFDB), // Polar lights teal mint tint
+    // 中文名称：极光幻彩
+    name: '极光幻彩',
+    // 极光青绿色
+    glassColor: Color(0xFFB2DFDB),
+    // 基础不透明度 14%
     baseOpacity: 0.14,
+    // 物理厚度 29 像素
     thickness: 29.0,
+    // 光照反射强度 1.05
     lightIntensity: 1.05,
+    // 模糊半径 4.0
     blur: 4.0,
+    // 环境漫反射 0.20
     ambient: 0.20,
+    // 饱和度 1.45
     saturation: 1.45,
+    // 折射率 1.27
     refractiveIndex: 1.27,
   ),
 ];
 
-// ── Per-widget Standard preset defaults ───────────────────────────────────────
-// lightweight_glass.frag shader uniform mapping:
-//   opacity   → glassColor.alpha  (body density / translucency — MOST VISIBLE)
-//   ambient   → ambientStrength   (multiplier on bgRgb in body layer, subtle)
-//   glow      → glowIntensity     (additive brightness — very visible)
-//   light     → lightIntensity    (rim specular brightness)
-//   thickness → rim width
-//   blur      → BackdropFilter frosting
-// NOTE: uSaturation in this shader = HUE saturation (mix(luma,color,sat)).
-//   For white/achromatic glass it has no effect, so we map opacity → glassColor.alpha instead.
-// Tune these until Standard matches Premium, then report values.
-
+// ── Standard 轻量级着色器各组件默认参数 ──────────────────────────────────────
+// 胶囊指示器的轻量拟合默认参数
 const _kPillDefault = _Preset(
-  // Animated pill / indicator — tuned 2026-05-20 (calibrated with 0.25x shader scaling)
-  // thickness→rimThickness (÷0.35 dampener → 0.35×1/0.35=0.35 rendered rim)
-  // light→lightIntensity   (÷0.6  dampener → 0.60×1/0.6 =0.60 rendered spec)
   thickness: 1.0, ambient: 0.28, glow: 0.50, light: 1.0,
   blur: 3.0,
   stdOpacityMultiplier: 1.0,
 );
+// 按钮组件的轻量拟合默认参数
 const _kBtnDefault = _Preset(
-  // GlassButton — tuned 2026-05-20 (calibrated with 0.25x shader scaling)
-  // light↑ 0.72→0.88: rim specular needs to be brighter on 2D shader to match
-  // the 3D SDF Fresnel rim of Premium. glow↓ 0.75→0.65: compensates so total
-  // perceived brightness doesn't overshoot. Result: ~88% parity with Premium.
   thickness: 17, ambient: 0.28, glow: 0.65, light: 0.88,
   blur: 3.0,
   stdOpacityMultiplier: 1.0,
 );
+// 卡片与表面组件的轻量拟合默认参数
 const _kCardDefault = _Preset(
-  // GlassCard + tab bar surface — tuned for ~88% visual parity
   thickness: 19, ambient: 0.26, glow: 0.0, light: 0.90,
   blur: 3.0,
   stdOpacityMultiplier: 1.0,
 );
 
-// ── Entry point ───────────────────────────────────────────────────────────────
-
+// 异步主函数入口点
 void main() async {
+  // 确保 Flutter 绑定初始化
   WidgetsFlutterBinding.ensureInitialized();
+  // 初始化流体玻璃着色器
   await LiquidGlassWidgets.initialize();
+  // 启动 Demo 应用
   runApp(LiquidGlassWidgets.wrap(
-    // Recommended for production: auto-benchmarks the device and
-    // degrades quality gracefully on weaker hardware.
+    // 开启自适应画质降级模式
     adaptiveQuality: true,
     child: const _App(),
   ));
 }
 
+// 示例应用入口无状态组件
 class _App extends StatelessWidget {
+  // 构造函数
   const _App();
 
+  // 构建根应用组件
   @override
   Widget build(BuildContext context) {
+    // 返回 CupertinoApp 容器
     return CupertinoApp(
-      title: 'Quality Comparison',
+      // 设置标题
+      title: '画质分级对比测试',
+      // 禁用 Debug 标识
       debugShowCheckedModeBanner: false,
+      // 默认暗黑主题
       theme: const CupertinoThemeData(brightness: Brightness.dark),
+      // 包装 Material 主题
       builder: (context, child) => Theme(
         data: ThemeData.dark(useMaterial3: true),
         child: child!,
       ),
+      // 首页组件为画质对比展示页
       home: const GlassQualityComparisonDemo(),
     );
   }
 }
 
-// ── Demo page ─────────────────────────────────────────────────────────────────
-
+// 画质分级对比演示 StatefulWidget
 class GlassQualityComparisonDemo extends StatefulWidget {
+  // 构造函数
   const GlassQualityComparisonDemo({super.key});
 
+  // 创建 State
   @override
   State<GlassQualityComparisonDemo> createState() =>
       GlassQualityComparisonDemoState();
 }
 
+// 画质对比 State 状态管理类
 class GlassQualityComparisonDemoState
     extends State<GlassQualityComparisonDemo> {
+  // 分段控件当前选中索引
   int _segIndex = 0;
+  // 标签栏当前选中索引
   int _tabIndex = 0;
+  // 开关控件状态
   bool _switchValue = false;
+  // 滑块当前数值
   double _sliderValue = 0.4;
 
-  // ── Live tuning panel ──────────────────────────────────────────────────
+  // 是否展开高级调优面板的状态标志
   bool _showTuning = false;
 
-  // ── Per-widget Standard presets ──────────────────────────────────────
-  // Premium uses the dynamic thematic values which can be customized.
+  // 当前应用的各轻量组件调优参数
   _Preset _pill = _kPillDefault;
   _Preset _btn = _kBtnDefault;
   _Preset _card = _kCardDefault;
 
-  // ── Thematic / Glass Preset State ─────────────────────────────────────
+  // 当前选中的主题预设索引
   int _selectedPresetIndex = 0;
+  // 响应式玻璃颜色
   Color _glassColor = _kThemePresets[0].glassColor;
+  // 响应式基础透明度
   double _baseOpacity = _kThemePresets[0].baseOpacity;
+  // 响应式厚度
   double _thickness = _kThemePresets[0].thickness;
+  // 响应式光强
   double _lightIntensity = _kThemePresets[0].lightIntensity;
+  // 响应式模糊
   double _blur = _kThemePresets[0].blur;
+  // 响应式环境光
   double _ambient = _kThemePresets[0].ambient;
+  // 响应式饱和度
   double _saturation = _kThemePresets[0].saturation;
+  // 响应式折射率
   double _refractiveIndex = _kThemePresets[0].refractiveIndex;
 
-  /// Premium — reference settings that update dynamically based on the active
-  /// thematic preset or global custom overrides.
+  // 计算旗舰 (Premium) 动态渲染设置
   LiquidGlassSettings get _kGlass => LiquidGlassSettings(
         glassColor: _glassColor.withValues(alpha: _baseOpacity),
         blur: _blur,
@@ -250,34 +349,44 @@ class GlassQualityComparisonDemoState
         saturation: _saturation,
       );
 
-  /// Standard pill / animated indicator settings.
+  // 计算标准 (Standard) 胶囊设置
   LiquidGlassSettings get _kGlassPill => _pill.toSettings(_kGlass.glassColor);
-
-  /// Standard button settings.
+  // 计算标准 (Standard) 按钮设置
   LiquidGlassSettings get _kGlassBtn => _btn.toSettings(_kGlass.glassColor);
-
-  /// Standard card / surface settings (also used for tab bar background).
+  // 计算标准 (Standard) 卡片设置
   LiquidGlassSettings get _kGlassCard => _card.toSettings(_kGlass.glassColor);
 
+  // 构建整个页面布局
   @override
   Widget build(BuildContext context) {
+    // 使用层叠 Stack 布局背景和流体玻璃页面
     return Stack(
+      // 撑满整个屏幕尺寸
       fit: StackFit.expand,
+      // 子组件列表
       children: [
-        // Plain background — renders as a normal Flutter layer so both
-        // standard BackdropFilter and premium Impeller shader can sample it.
+        // 高清山脉风景壁纸背景
         Image.asset('assets/mountain_landscape.jpg', fit: BoxFit.cover),
+        // 半透明暗色遮罩层以增强文字可读性
         Container(color: CupertinoColors.black.withValues(alpha: 0.28)),
 
-        // GlassPage with no background param — wraps the content only.
+        // 流体玻璃页面包裹容器
         GlassPage(
+          // 内部脚手架
           child: GlassScaffold(
+            // 设置脚手架背景为全透明
             backgroundColor: const Color(0x00000000),
+            // 安全区域
             body: SafeArea(
+              // 纵向排版
               child: Column(
+                // 横向拉伸
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                // 子项列表
                 children: [
+                  // 构建顶部标题与预设选择区
                   _buildHeader(),
+                  // 如果展开了调参面板，则渲染高级控制台
                   if (_showTuning)
                     Padding(
                       padding:
@@ -299,11 +408,13 @@ class GlassQualityComparisonDemoState
                               padding: EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
+                                children: [\n                                  // 旗舰级 3D SDF 参数调优板块
                                   _buildPremiumTuningPanel(),
                                   SizedBox(height: 16),
+                                  // 标准级 2D 着色器参数拟合板块
                                   _buildStandardTuningPanel(),
                                   SizedBox(height: 16),
+                                  // 实时参数数学诊断信息
                                   _buildDiagnosticsPanel(),
                                 ],
                               ),
@@ -313,8 +424,10 @@ class GlassQualityComparisonDemoState
                       ),
                     ),
                   SizedBox(height: 8),
+                  // 构建双列画质对比标签徽章（PREMIUM vs STANDARD）
                   _buildColumnLabels(),
                   SizedBox(height: 4),
+                  // 构建滚动展示的具体对比组件列表
                   Expanded(child: _buildComparisonList()),
                 ],
               ),
@@ -325,7 +438,7 @@ class GlassQualityComparisonDemoState
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
+  // ── 构建页面顶部区域 ─────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
     return Padding(
@@ -337,11 +450,12 @@ class GlassQualityComparisonDemoState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
+                // 汉化主标题：画质分级对比
                 child: Text(
-                  'Quality Comparison',
+                  '画质分级对比 (Premium vs Standard)',
                   style: TextStyle(
                     color: CupertinoColors.white,
-                    fontSize: 28,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
                   ),
@@ -351,9 +465,9 @@ class GlassQualityComparisonDemoState
           ),
           SizedBox(height: 10),
 
-          // Thematic Preset Selector (Glass Menu)
+          // 汉化预设标题：主题预设
           Text(
-            'THEME PRESETS',
+            '主题材质预设 (THEME PRESETS)',
             style: TextStyle(
               color: CupertinoColors.white.withValues(alpha: 0.38),
               fontSize: 9,
@@ -362,6 +476,7 @@ class GlassQualityComparisonDemoState
             ),
           ),
           SizedBox(height: 6),
+          // 水平滚动的主题预设选择器
           SizedBox(
             height: 38,
             child: ListView.builder(
@@ -449,15 +564,15 @@ class GlassQualityComparisonDemoState
           ),
           SizedBox(height: 12),
 
-          // Tuning toggle
+          // 汉化高级调参折叠开关按钮
           GestureDetector(
             onTap: () => setState(() => _showTuning = !_showTuning),
             child: Row(
               children: [
                 Text(
                   _showTuning
-                      ? '▲ Hide Advanced Tuning'
-                      : '▼ Tune Premium & Standard',
+                      ? '▲ 收起高级物理调优面板'
+                      : '▼ 展开高级物理调优面板 (Premium & Standard)',
                   style: TextStyle(
                     color: CupertinoColors.white.withValues(alpha: 0.55),
                     fontSize: 11,
@@ -473,8 +588,9 @@ class GlassQualityComparisonDemoState
                       color: const Color(0xFFFFB830).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
+                    // 汉化徽章：旗舰参数覆盖
                     child: Text(
-                      'PREMIUM OVERRIDES',
+                      '旗舰覆盖',
                       style: TextStyle(
                         color: Color(0xFFFFB830),
                         fontSize: 7,
@@ -491,12 +607,13 @@ class GlassQualityComparisonDemoState
     );
   }
 
+  // 汉化旗舰级参数调参面板
   Widget _buildPremiumTuningPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'GLOBAL PREMIUM CONFIG (Interactive Playground)',
+          '全局旗舰画质配置 (3D SDF Impeller 光学模型)',
           style: TextStyle(
             color: Color(0xFFFFB830),
             fontSize: 9,
@@ -505,30 +622,31 @@ class GlassQualityComparisonDemoState
           ),
         ),
         SizedBox(height: 8),
-        _Slider('Opacity', _baseOpacity, 0.01, 1.0,
+        _Slider('不透明度', _baseOpacity, 0.01, 1.0,
             (v) => setState(() => _baseOpacity = v),
             color: CupertinoColors.white),
-        _Slider('Thickness', _thickness, 1.0, 60.0,
+        _Slider('玻璃厚度', _thickness, 1.0, 60.0,
             (v) => setState(() => _thickness = v),
             color: CupertinoColors.white),
-        _Slider('Specularity', _lightIntensity, 0.0, 2.5,
+        _Slider('镜面反射', _lightIntensity, 0.0, 2.5,
             (v) => setState(() => _lightIntensity = v),
             color: CupertinoColors.white),
-        _Slider('Blur', _blur, 0.0, 20.0, (v) => setState(() => _blur = v),
+        _Slider('模糊半径', _blur, 0.0, 20.0, (v) => setState(() => _blur = v),
             color: CupertinoColors.white),
         _Slider(
-            'Ambient', _ambient, 0.0, 0.6, (v) => setState(() => _ambient = v),
+            '环境光强', _ambient, 0.0, 0.6, (v) => setState(() => _ambient = v),
             color: CupertinoColors.white),
-        _Slider('Saturation', _saturation, 0.0, 3.0,
+        _Slider('色彩饱和', _saturation, 0.0, 3.0,
             (v) => setState(() => _saturation = v),
             color: CupertinoColors.white),
-        _Slider('Refraction', _refractiveIndex, 1.0, 2.0,
+        _Slider('光学折射', _refractiveIndex, 1.0, 2.0,
             (v) => setState(() => _refractiveIndex = v),
             color: CupertinoColors.white),
       ],
     );
   }
 
+  // 汉化标准级参数调参面板
   Widget _buildStandardTuningPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -537,7 +655,7 @@ class GlassQualityComparisonDemoState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'STANDARD ONLY  ·  Premium is locked',
+              '仅标准画质微调  ·  旗舰画质已锁定对比',
               style: TextStyle(
                   color: Color(0xFF5AC8FA),
                   fontSize: 9,
@@ -560,8 +678,8 @@ class GlassQualityComparisonDemoState
                   border: Border.all(
                       color: const Color(0xFF5AC8FA).withValues(alpha: 0.3)),
                 ),
-                child: Text(
-                  'RESET TO DEFAULTS',
+                Text(
+                  '恢复默认值',
                   style: TextStyle(
                     color: Color(0xFF5AC8FA),
                     fontSize: 7,
@@ -575,7 +693,7 @@ class GlassQualityComparisonDemoState
         ),
         SizedBox(height: 2, width: double.infinity),
         Text(
-          'saturation → bgBoost  ·  ambient → lift  ·  glow → fresnel edge',
+          '饱和度 → 背景增强  ·  环境光 → 亮度提升  ·  辉光 → 边缘高光',
           style: TextStyle(
               color: CupertinoColors.white.withValues(alpha: 0.24),
               fontSize: 8,
@@ -583,39 +701,42 @@ class GlassQualityComparisonDemoState
         ),
         SizedBox(height: 8),
         _PresetSection(
-            label: '● PILL / INDICATOR',
+            label: '● 胶囊 / 动态指示器',
             color: const Color(0xFF5AC8FA),
             preset: _pill,
             onChanged: (p) => setState(() => _pill = p),
             thicknessMin: 0.1,
             thicknessMax: 8.0,
-            thicknessLabel: 'rim px'),
+            thicknessLabel: '边缘宽度'),
         SizedBox(height: 8),
         _PresetSection(
-            label: '● BUTTON',
+            label: '● 拟真玻璃按钮',
             color: const Color(0xFF4ADE80),
             preset: _btn,
             onChanged: (p) => setState(() => _btn = p),
             thicknessMin: 0.0,
-            thicknessMax: 30.0),
+            thicknessMax: 30.0,
+            thicknessLabel: '厚度'),
         SizedBox(height: 8),
         _PresetSection(
-            label: '● CARD / SURFACE',
+            label: '● 磨砂卡片 / 表面底板',
             color: const Color(0xFFBB86FC),
             preset: _card,
             onChanged: (p) => setState(() => _card = p),
             thicknessMin: 0.0,
-            thicknessMax: 30.0),
+            thicknessMax: 30.0,
+            thicknessLabel: '厚度'),
       ],
     );
   }
 
+  // 汉化实时诊断数据面板
   Widget _buildDiagnosticsPanel() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'REAL-TIME STANDARD PARITY MATHEMATICS',
+          '标准画质实时拟合数学模型',
           style: TextStyle(
               color: CupertinoColors.white.withValues(alpha: 0.38),
               fontSize: 9,
@@ -624,7 +745,7 @@ class GlassQualityComparisonDemoState
         ),
         SizedBox(height: 4),
         Text(
-          'pill  th=${_pill.thickness.toStringAsFixed(1)} amb=${_pill.ambient.toStringAsFixed(3)}\n'
+          '胶囊  th=${_pill.thickness.toStringAsFixed(1)} amb=${_pill.ambient.toStringAsFixed(3)}\\n'
           '      glow=${_pill.glow.toStringAsFixed(2)} li=${_pill.light.toStringAsFixed(2)} blur=${_pill.blur.toStringAsFixed(1)}',
           style: TextStyle(
             color: const Color(0xFF5AC8FA).withValues(alpha: 0.9),
@@ -634,7 +755,7 @@ class GlassQualityComparisonDemoState
         ),
         SizedBox(height: 4),
         Text(
-          'btn   th=${_btn.thickness.toStringAsFixed(0)} amb=${_btn.ambient.toStringAsFixed(3)}\n'
+          '按钮  th=${_btn.thickness.toStringAsFixed(0)} amb=${_btn.ambient.toStringAsFixed(3)}\\n'
           '      glow=${_btn.glow.toStringAsFixed(2)} li=${_btn.light.toStringAsFixed(2)} blur=${_btn.blur.toStringAsFixed(1)}',
           style: TextStyle(
             color: const Color(0xFF4ADE80).withValues(alpha: 0.9),
@@ -644,7 +765,7 @@ class GlassQualityComparisonDemoState
         ),
         SizedBox(height: 4),
         Text(
-          'card  th=${_card.thickness.toStringAsFixed(0)} amb=${_card.ambient.toStringAsFixed(3)}\n'
+          '卡片  th=${_card.thickness.toStringAsFixed(0)} amb=${_card.ambient.toStringAsFixed(3)}\\n'
           '      glow=${_card.glow.toStringAsFixed(2)} li=${_card.light.toStringAsFixed(2)} blur=${_card.blur.toStringAsFixed(1)}',
           style: TextStyle(
             color: const Color(0xFFBB86FC).withValues(alpha: 0.9),
@@ -656,8 +777,7 @@ class GlassQualityComparisonDemoState
     );
   }
 
-  // ── Column labels ─────────────────────────────────────────────────────────
-
+  // 汉化列标题徽章
   Widget _buildColumnLabels() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -665,16 +785,16 @@ class GlassQualityComparisonDemoState
         children: [
           Expanded(
             child: _QualityBadge(
-              label: 'PREMIUM',
-              subtitle: 'Impeller · 3D SDF',
+              label: '旗舰画质 (PREMIUM)',
+              subtitle: 'Impeller 引擎 · 3D SDF 光学',
               color: const Color(0xFFFFB830),
             ),
           ),
           SizedBox(width: 12),
           Expanded(
             child: _QualityBadge(
-              label: 'STANDARD',
-              subtitle: 'Skia/Web · 2D shader',
+              label: '标准画质 (STANDARD)',
+              subtitle: 'Skia/Web · 2D 着色器拟合',
               color: const Color(0xFF5AC8FA),
             ),
           ),
@@ -683,8 +803,7 @@ class GlassQualityComparisonDemoState
     );
   }
 
-  // ── Comparison list ───────────────────────────────────────────────────────
-
+  // 汉化对比组件清单
   Widget _buildComparisonList() {
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(20, 12, 20, 40),
@@ -692,14 +811,14 @@ class GlassQualityComparisonDemoState
         children: [
           // ── GlassButton ─────────────────────────────────────────────────
           _ComparisonRow(
-            label: 'GlassButton',
+            label: '流体玻璃按钮 (GlassButton)',
             premium: GlassButton(
               useOwnLayer: true,
               settings: _kGlass,
               quality: GlassQuality.premium,
               onTap: () {},
               icon: Icon(CupertinoIcons.play_fill),
-              label: 'Press',
+              label: '点击体验',
             ),
             standard: GlassButton(
               useOwnLayer: true,
@@ -707,7 +826,7 @@ class GlassQualityComparisonDemoState
               quality: GlassQuality.standard,
               onTap: () {},
               icon: Icon(CupertinoIcons.play_fill),
-              label: 'Press',
+              label: '点击体验',
             ),
           ),
 
@@ -715,16 +834,16 @@ class GlassQualityComparisonDemoState
 
           // ── GlassSegmentedControl ────────────────────────────────────────
           _ComparisonRow(
-            label: 'GlassSegmentedControl',
+            label: '分段控制器 (GlassSegmentedControl)',
             premium: GlassSegmentedControl(
               useOwnLayer: true,
               settings: _kGlass,
               indicatorSettings: _kGlass,
               quality: GlassQuality.premium,
-              segments: [
-                GlassSegment(label: 'Day'),
-                GlassSegment(label: 'Week'),
-                GlassSegment(label: 'Month')
+              segments: const [
+                GlassSegment(label: '按日'),
+                GlassSegment(label: '按周'),
+                GlassSegment(label: '按月')
               ],
               selectedIndex: _segIndex,
               onSegmentSelected: (i) => setState(() => _segIndex = i),
@@ -734,10 +853,10 @@ class GlassQualityComparisonDemoState
               settings: _kGlassCard,
               indicatorSettings: _kGlassPill,
               quality: GlassQuality.standard,
-              segments: [
-                GlassSegment(label: 'Day'),
-                GlassSegment(label: 'Week'),
-                GlassSegment(label: 'Month')
+              segments: const [
+                GlassSegment(label: '按日'),
+                GlassSegment(label: '按周'),
+                GlassSegment(label: '按月')
               ],
               selectedIndex: _segIndex,
               onSegmentSelected: (i) => setState(() => _segIndex = i),
@@ -748,7 +867,7 @@ class GlassQualityComparisonDemoState
 
           // ── GlassCard ───────────────────────────────────────────────────
           _ComparisonRow(
-            label: 'GlassCard',
+            label: '磨砂卡片 (GlassCard)',
             premium: GlassCard(
               useOwnLayer: true,
               settings: _kGlass,
@@ -759,7 +878,7 @@ class GlassQualityComparisonDemoState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Premium',
+                      '旗舰 3D 渲染',
                       style: TextStyle(
                         color: CupertinoColors.white,
                         fontWeight: FontWeight.w600,
@@ -768,7 +887,7 @@ class GlassQualityComparisonDemoState
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '3D bevel · specular\nreflection',
+                      '3D 倒角 · 镜面光学反射',
                       style: TextStyle(
                         color: CupertinoColors.white.withValues(alpha: 0.70),
                         fontSize: 11,
@@ -789,7 +908,7 @@ class GlassQualityComparisonDemoState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Standard',
+                      '标准 2D 渲染',
                       style: TextStyle(
                         color: CupertinoColors.white,
                         fontWeight: FontWeight.w600,
@@ -798,7 +917,7 @@ class GlassQualityComparisonDemoState
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '2D rim · normalised\nthickness & light',
+                      '2D 轮廓 · 归一化厚度与光照',
                       style: TextStyle(
                         color: CupertinoColors.white.withValues(alpha: 0.70),
                         fontSize: 11,
@@ -813,14 +932,14 @@ class GlassQualityComparisonDemoState
 
           SizedBox(height: 20),
 
-          // ── GlassTabBar (full-width stacked) ─────────────────────────────
+          // ── GlassTabBar ──────────────────────────────────────────────────
           _FullWidthRow(
-            label: 'GlassTabBar',
+            label: '流体标签栏 (GlassTabBar)',
             premiumWidget: GlassSegmentedControl(
               useOwnLayer: true,
               settings: _kGlass,
               quality: GlassQuality.premium,
-              segments: [
+              segments: const [
                 GlassSegment(icon: Icon(CupertinoIcons.home)),
                 GlassSegment(icon: Icon(CupertinoIcons.search)),
                 GlassSegment(icon: Icon(CupertinoIcons.person)),
@@ -833,7 +952,7 @@ class GlassQualityComparisonDemoState
               settings: _kGlassCard,
               indicatorSettings: _kGlassPill,
               quality: GlassQuality.standard,
-              segments: [
+              segments: const [
                 GlassSegment(icon: Icon(CupertinoIcons.home)),
                 GlassSegment(icon: Icon(CupertinoIcons.search)),
                 GlassSegment(icon: Icon(CupertinoIcons.person)),
@@ -847,7 +966,7 @@ class GlassQualityComparisonDemoState
 
           // ── GlassSwitch ───────────────────────────────────────────────────
           _ComparisonRow(
-            label: 'GlassSwitch',
+            label: '拟真玻璃开关 (GlassSwitch)',
             premium: GlassSwitch(
               value: _switchValue,
               quality: GlassQuality.premium,
@@ -864,23 +983,21 @@ class GlassQualityComparisonDemoState
 
           // ── GlassSlider ───────────────────────────────────────────────────
           _FullWidthRow(
-            label: 'GlassSlider',
+            label: '拟真玻璃滑块 (GlassSlider)',
             premiumWidget: GlassSlider(
               value: _sliderValue,
               quality: GlassQuality.premium,
-              activeColor: const Color(0xFF007AFF), // iOS system blue
-              inactiveColor:
-                  const Color(0x20FFFFFF), // glass tint for frosted track
-              trackHeight: 5, // matches real iOS slider track thickness
+              activeColor: const Color(0xFF007AFF),
+              inactiveColor: const Color(0x20FFFFFF),
+              trackHeight: 5,
               onChanged: (v) => setState(() => _sliderValue = v),
             ),
             standardWidget: GlassSlider(
               value: _sliderValue,
               quality: GlassQuality.standard,
-              activeColor: const Color(0xFF007AFF), // iOS system blue
-              inactiveColor:
-                  const Color(0x20FFFFFF), // glass tint for frosted track
-              trackHeight: 5, // matches real iOS slider track thickness
+              activeColor: const Color(0xFF007AFF),
+              inactiveColor: const Color(0x20FFFFFF),
+              trackHeight: 5,
               onChanged: (v) => setState(() => _sliderValue = v),
             ),
           ),
@@ -890,9 +1007,7 @@ class GlassQualityComparisonDemoState
   }
 }
 
-// ── Helper widgets ────────────────────────────────────────────────────────────
-
-/// Column header badge showing quality tier name and renderer description.
+// 辅助组件：画质徽章
 class _QualityBadge extends StatelessWidget {
   const _QualityBadge({
     required this.label,
@@ -919,16 +1034,16 @@ class _QualityBadge extends StatelessWidget {
             label,
             style: TextStyle(
               color: color,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
+              letterSpacing: 1.0,
             ),
           ),
           Text(
             subtitle,
             style: TextStyle(
               color: color.withValues(alpha: 0.7),
-              fontSize: 10,
+              fontSize: 9,
             ),
           ),
         ],
@@ -937,7 +1052,7 @@ class _QualityBadge extends StatelessWidget {
   }
 }
 
-/// Side-by-side comparison row for widgets that fit in equal columns.
+// 辅助组件：双列对比行
 class _ComparisonRow extends StatelessWidget {
   const _ComparisonRow({
     required this.label,
@@ -983,7 +1098,7 @@ class _ComparisonRow extends StatelessWidget {
   }
 }
 
-/// Full-width stacked row for widgets like GlassTabBar that need the full width.
+// 辅助组件：通栏对比行
 class _FullWidthRow extends StatelessWidget {
   const _FullWidthRow({
     required this.label,
@@ -1012,22 +1127,17 @@ class _FullWidthRow extends StatelessWidget {
             ),
           ),
         ),
-
-        // Premium
         Row(
           children: [
-            _QualityPill('PREMIUM', const Color(0xFFFFB830)),
+            _QualityPill('旗舰', const Color(0xFFFFB830)),
             SizedBox(width: 10),
             Expanded(child: premiumWidget),
           ],
         ),
-
         SizedBox(height: 12),
-
-        // Standard
         Row(
           children: [
-            _QualityPill('STANDARD', const Color(0xFF5AC8FA)),
+            _QualityPill('标准', const Color(0xFF5AC8FA)),
             SizedBox(width: 10),
             Expanded(child: standardWidget),
           ],
@@ -1037,7 +1147,7 @@ class _FullWidthRow extends StatelessWidget {
   }
 }
 
-/// Small vertical pill label for the full-width stacked rows.
+// 辅助组件：侧边垂直胶囊
 class _QualityPill extends StatelessWidget {
   const _QualityPill(this.label, this.color);
 
@@ -1069,6 +1179,7 @@ class _QualityPill extends StatelessWidget {
   }
 }
 
+// 辅助组件：预设折叠段
 class _PresetSection extends StatefulWidget {
   const _PresetSection({
     required this.label,
@@ -1077,7 +1188,7 @@ class _PresetSection extends StatefulWidget {
     required this.onChanged,
     this.thicknessMin = 0.0,
     this.thicknessMax = 30.0,
-    this.thicknessLabel = 'thickness',
+    this.thicknessLabel = '厚度',
   });
 
   final String label;
@@ -1151,19 +1262,19 @@ class _PresetSectionState extends State<_PresetSection> {
                 widget.thicknessMax,
                 (v) => widget.onChanged(p.copyWith(thickness: v)),
                 color: c),
-            _Slider('ambient', p.ambient, 0.0, 0.35,
+            _Slider('环境光强', p.ambient, 0.0, 0.35,
                 (v) => widget.onChanged(p.copyWith(ambient: v)),
                 color: c),
-            _Slider('glow', p.glow, 0.0, 2.0,
+            _Slider('辉光强度', p.glow, 0.0, 2.0,
                 (v) => widget.onChanged(p.copyWith(glow: v)),
                 color: c),
-            _Slider('light', p.light, 0.0, 1.5,
+            _Slider('边缘高光', p.light, 0.0, 1.5,
                 (v) => widget.onChanged(p.copyWith(light: v)),
                 color: c),
-            _Slider('blur', p.blur, 0.0, 12.0,
+            _Slider('模糊半径', p.blur, 0.0, 12.0,
                 (v) => widget.onChanged(p.copyWith(blur: v)),
                 color: c),
-            _Slider('stdOp', p.stdOpacityMultiplier, 0.0, 2.0,
+            _Slider('标准透明乘子', p.stdOpacityMultiplier, 0.0, 2.0,
                 (v) => widget.onChanged(p.copyWith(stdOpacityMultiplier: v)),
                 color: c),
           ],
@@ -1173,6 +1284,7 @@ class _PresetSectionState extends State<_PresetSection> {
   }
 }
 
+// 通用滑块行组件
 class _Slider extends StatelessWidget {
   const _Slider(this.label, this.value, this.min, this.max, this.onChanged,
       {this.color = const Color(0xB2FFFFFF)});
@@ -1189,7 +1301,7 @@ class _Slider extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 72,
+          width: 84,
           child: Text(
             '$label: ${value.toStringAsFixed(2)}',
             style: TextStyle(
@@ -1213,21 +1325,7 @@ class _Slider extends StatelessWidget {
   }
 }
 
-// ── _Preset data class ─────────────────────────────────────────────────────────
-
-/// Immutable tuning preset for one Standard widget type.
-///
-/// Field mapping to [LiquidGlassSettings] / shader uniforms
-/// (lightweight_glass.frag — Standard path only, Premium untouched):
-///
-/// | Preset field | Settings mapping            | Visible effect                |
-/// |-------------|----------------------------|-------------------------------|
-/// | opacity     | glassColor.alpha            | Body density (most impactful) |
-/// | ambient     | ambientStrength             | Background bleed (subtle)     |
-/// | glow        | glowIntensity               | Additive brightness           |
-/// | light       | lightIntensity              | Rim specular brightness       |
-/// | thickness   | thickness                   | Rim width                     |
-/// | blur        | blur                        | BackdropFilter frosting       |
+// 预设数据不可变类
 class _Preset {
   const _Preset({
     required this.thickness,
@@ -1239,18 +1337,16 @@ class _Preset {
   });
 
   final double thickness;
-  final double ambient; // → ambientStrength    (bgRgb multiplier, subtle)
-  final double glow; // → glowIntensity      (additive glow)
-  final double light; // → lightIntensity     (rim brightness)
-  final double blur; // → blur               (frosting)
+  final double ambient;
+  final double glow;
+  final double light;
+  final double blur;
   final double stdOpacityMultiplier;
 
   LiquidGlassSettings toSettings(Color baseColor) => LiquidGlassSettings(
         glassColor: baseColor,
         thickness: thickness,
-        saturation:
-            1.08, // Neutral — uSaturation is hue-sat in lightweight_glass.frag;
-        // has no effect on white glass, so fixed at 1.08.
+        saturation: 1.08,
         ambientStrength: ambient,
         glowIntensity: glow,
         lightIntensity: light,
