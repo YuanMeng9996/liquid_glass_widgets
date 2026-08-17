@@ -1,79 +1,98 @@
-/// Demo for testing GlassButtons, GlassButtonGroups, drop shadows,
-/// and the whitenStrength legibility veil.
-///
-/// This example demonstrates buttons with different shadow elevations
-/// in premium quality, and provides a real-time slider to preview
-/// the whitenStrength veil on the bottom bar. Scroll to the bottom
-/// to see the whiten-at-bottom scroll-boost in action.
-///
-/// To run: flutter run -t example/lib/main.dart
+// 声明当前 Dart 库文件
 library;
 
+// 导入 Flutter 官方 Cupertino 规范 iOS 拟真组件库
 import 'package:flutter/cupertino.dart';
+// 导入 Flutter 核心 Material Design 基础组件库
 import 'package:flutter/material.dart';
 
+// 导入 liquid_glass_widgets 流体玻璃渲染核心组件库
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
+// 异步主函数入口点
 void main() async {
+  // 确保 Flutter 绑定通道就绪
   WidgetsFlutterBinding.ensureInitialized();
+  // 初始化流体玻璃着色器
   await LiquidGlassWidgets.initialize();
+  // 启动 Demo 应用
   runApp(LiquidGlassWidgets.wrap(child: const ShadowClippingDemoApp()));
 }
 
+// 演示应用根 StatelessWidget
 class ShadowClippingDemoApp extends StatelessWidget {
+  // 构造函数
   const ShadowClippingDemoApp({super.key});
 
+  // 构建应用 UI
   @override
   Widget build(BuildContext context) {
+    // 返回 CupertinoApp 容器
     return CupertinoApp(
+      // 关闭 Debug 标识
       debugShowCheckedModeBanner: false,
+      // 强制使用浅色模式（便于观察 GPU 物理投影）
       theme: const CupertinoThemeData(brightness: Brightness.light),
+      // 包裹 Material 浅色主题
       builder: (context, child) => Theme(
         data: ThemeData.light(useMaterial3: true),
         child: child!,
       ),
+      // 首页指向标高与阴影演示页面
       home: const ShadowClippingDemoPage(),
     );
   }
 }
 
+// 标高与阴影演示 StatefulWidget
 class ShadowClippingDemoPage extends StatefulWidget {
+  // 构造函数
   const ShadowClippingDemoPage({super.key});
 
+  // 创建 State
   @override
   State<ShadowClippingDemoPage> createState() => _ShadowClippingDemoPageState();
 }
 
+// 标高与阴影演示 State 状态类
 class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
+  // 底部导航当前选中的 Tab 索引
   int _tabIndex = 0;
+  // 底部搜索框是否处于激活展开状态
   bool _searchActive = false;
+  // 底部白化可读性遮罩强度（范围 0.0 - 1.0）
   double _whitenStrength = 0.30;
+  // 滚动控制器，用于联动底部自动白化增强效果
   final ScrollController _scrollController = ScrollController();
 
+  // 组件销毁生命周期
   @override
   void dispose() {
+    // 释放滚动控制器
     _scrollController.dispose();
+    // 调用父类销毁
     super.dispose();
   }
 
+  // 构建页面 UI 布局
   @override
   Widget build(BuildContext context) {
-    // ── GPU Shadows Demo ─────────────────────────────────────────────────────
-    // Drop shadows on glass surfaces are only visible in Light Mode, since
-    // dark mode backgrounds are naturally too dark for a black shadow to cast.
-    //
-    // We force this demo into Light Mode so the GPU SDF shadows are always visible.
+    // 包装 CupertinoTheme 强制在浅色模式下展现硬件级柔和阴影
     return CupertinoTheme(
       data: CupertinoTheme.of(context).copyWith(
         brightness: Brightness.light,
       ),
+      // 使用流体玻璃脚手架
       child: GlassScaffold(
+        // 设置浅灰背景
         background: Container(
-          color: const Color(0xFFF0F0F5), // Light background to see shadows
+          color: const Color(0xFFF0F0F5),
         ),
+        // 汉化应用栏标题
         appBar: const GlassAppBar(
-          title: Text('Buttons & Shadows Demo'),
+          title: Text('按钮标高与 GPU 硬件阴影演示'),
         ),
+        // 配置支持搜索与白化提亮增强的流体底部栏
         bottomBar: GlassTabBar.searchable(
           selectedIndex: _tabIndex,
           onTabSelected: (idx) => setState(() {
@@ -84,27 +103,29 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
           searchConfig: GlassSearchBarConfig(
             onSearchToggle: (active) => setState(() => _searchActive = active),
           ),
-          // ── Whiten veil — driven by the slider in the body ──
+          // 动态响应白化强度滑块调节
           settings: LiquidGlassSettings(
             shadowElevation: 2.0,
             blur: 15,
             thickness: 20,
             whitenStrength: _whitenStrength,
           ),
-          // ── Whiten-at-bottom — scroll to the end to see the boost ──
+          // 绑定滚动控制器以触发滑动触底自动提亮
           scrollController: _scrollController,
           whitenAtBottom: true,
-          tabs: [
+          // 汉化底部栏标签
+          tabs: const [
             GlassTab(
               icon: Icon(CupertinoIcons.house),
-              label: 'Home',
+              label: '首页',
             ),
             GlassTab(
               icon: Icon(CupertinoIcons.compass),
-              label: 'Discover',
+              label: '发现',
             ),
           ],
         ),
+        // 旗舰级流体玻璃层
         body: AdaptiveLiquidGlassLayer(
           settings: const LiquidGlassSettings(
             thickness: 20,
@@ -118,8 +139,9 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // 汉化板块 1 标题
                   Text(
-                    'Premium Buttons with Elevations',
+                    '旗舰级不同标高流体按钮',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -127,8 +149,9 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ),
                   ),
                   SizedBox(height: 8),
+                  // 汉化板块 1 描述
                   Text(
-                    'Shadows should visibly expand around the buttons and not be cut off at the edge.',
+                    '着色器硬件阴影会在按钮周围平滑自然发散，边缘绝无硬截断。',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -136,17 +159,20 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ),
                   ),
                   SizedBox(height: 48),
+                  // 标高 1.0、2.0、4.0 水平并排展示
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
+                    children: const [
                       _ElevatedButton(elevation: 1.0),
                       _ElevatedButton(elevation: 2.0),
                       _ElevatedButton(elevation: 4.0),
                     ],
                   ),
                   SizedBox(height: 64),
+
+                  // 汉化板块 2 标题
                   Text(
-                    'Glass Menu',
+                    '流体上下文菜单 (GlassMenu)',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -162,19 +188,20 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                         shadowElevation: 1.0,
                       ),
                       quality: GlassQuality.premium,
+                      // 汉化菜单选项
                       items: [
                         GlassMenuItem(
-                          title: 'Option 1',
+                          title: '加入收藏 (选项 1)',
                           icon: Icon(CupertinoIcons.star),
                           onTap: () {},
                         ),
                         GlassMenuItem(
-                          title: 'Option 2',
+                          title: '标记喜欢 (选项 2)',
                           icon: Icon(CupertinoIcons.heart),
                           onTap: () {},
                         ),
                         GlassMenuItem(
-                          title: 'Option 3',
+                          title: '移至废纸篓 (选项 3)',
                           titleStyle:
                               TextStyle(color: CupertinoColors.destructiveRed),
                           icon: Icon(CupertinoIcons.trash,
@@ -189,19 +216,21 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                         iconSize: 24,
                         iconColor:
                             CupertinoColors.black.withValues(alpha: 0.87),
-                        onTap: toggle, // Correctly wire up the toggle function
-                        useOwnLayer: true, // Required for standalone shadows
+                        onTap: toggle,
+                        useOwnLayer: true,
                         settings: const LiquidGlassSettings(
                           shadowElevation: 1.0,
-                          glassColor: Color(0x99FFFFFF), // Make glass visible
+                          glassColor: Color(0x99FFFFFF),
                         ),
                         quality: GlassQuality.premium,
                       ),
                     ),
                   ),
                   SizedBox(height: 64),
+
+                  // 汉化板块 3 标题
                   Text(
-                    'Button Groups',
+                    '玻璃按钮组 (Button Groups)',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -232,8 +261,10 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ],
                   ),
                   SizedBox(height: 64),
+
+                  // 汉化板块 4 标题
                   Text(
-                    'Wide Button',
+                    '宽幅通栏按钮 (Wide Button)',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -244,8 +275,7 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                   GlassButton.custom(
                     width: 300,
                     height: 64,
-                    shape: const LiquidRoundedRectangle(
-                        borderRadius: 12), // Gentle corner radius
+                    shape: const LiquidRoundedRectangle(borderRadius: 12),
                     onTap: () {},
                     useOwnLayer: true,
                     settings: const LiquidGlassSettings(
@@ -255,8 +285,9 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                       glassColor: Color(0x99FFFFFF),
                     ),
                     quality: GlassQuality.premium,
+                    // 汉化按钮文本
                     child: Text(
-                      'Wide Button with Shadow',
+                      '带 GPU 硬件阴影的宽幅按钮',
                       style: TextStyle(
                         color: CupertinoColors.black.withValues(alpha: 0.87),
                         fontWeight: FontWeight.w600,
@@ -265,9 +296,10 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ),
                   ),
                   SizedBox(height: 64),
-                  // ── Whiten Strength slider ──────────────────────────
+
+                  // 汉化板块 5 标题
                   Text(
-                    'Whiten Strength (Legibility Veil)',
+                    '白化增亮遮罩强度 (Legibility Veil)',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -275,9 +307,9 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ),
                   ),
                   SizedBox(height: 8),
+                  // 汉化板块 5 说明
                   Text(
-                    'Drag the slider to lift the bottom bar toward white. '
-                    'Scroll to the bottom to see the whiten-at-bottom boost.',
+                    '拖动滑块提升底部导航栏向白色高亮过渡。滑动到底部可观察触底提亮增强效果。',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -312,7 +344,7 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ],
                   ),
                   Text(
-                    'whitenStrength: ${_whitenStrength.toStringAsFixed(2)}',
+                    '当前白化强度 (whitenStrength): ${_whitenStrength.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -320,30 +352,29 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
                     ),
                   ),
                   SizedBox(height: 24),
-                  // Side-by-side comparison cards
+                  // 白化对比卡片展示
                   Row(
                     children: [
                       Expanded(
                         child: _WhitenCard(
-                          label: 'With Whiten',
+                          label: '开启白化提亮',
                           whitenStrength: _whitenStrength,
                         ),
                       ),
                       SizedBox(width: 16),
                       Expanded(
                         child: _WhitenCard(
-                          label: 'No Whiten',
+                          label: '无白化提亮',
                           whitenStrength: 0.0,
                         ),
                       ),
                     ],
                   ),
-                  // Extra height so the page is scrollable to trigger
-                  // the whiten-at-bottom boost on the bar.
                   SizedBox(height: 200),
+                  // 汉化触底提示
                   Center(
                     child: Text(
-                      '↓ Scroll here to trigger whiten-at-bottom ↓',
+                      '↓ 继续向下滑动此处触发底部栏自动白化增强效果 ↓',
                       style: TextStyle(
                         fontSize: 13,
                         color: CupertinoColors.black.withValues(alpha: 0.38),
@@ -362,6 +393,7 @@ class _ShadowClippingDemoPageState extends State<ShadowClippingDemoPage> {
   }
 }
 
+// 标高按钮子组件
 class _ElevatedButton extends StatelessWidget {
   const _ElevatedButton({required this.elevation});
 
@@ -377,20 +409,20 @@ class _ElevatedButton extends StatelessWidget {
           height: 64,
           iconSize: 28,
           quality: GlassQuality.premium,
-          useOwnLayer:
-              true, // Required for standalone shadows in premium quality
+          useOwnLayer: true,
           iconColor: CupertinoColors.black.withValues(alpha: 0.87),
           onTap: () {},
           settings: LiquidGlassSettings(
             shadowElevation: elevation,
             thickness: 20,
             blur: 10,
-            glassColor: const Color(0x99FFFFFF), // Make glass visible
+            glassColor: const Color(0x99FFFFFF),
           ),
         ),
         SizedBox(height: 16),
+        // 汉化标高标签
         Text(
-          'Elev $elevation',
+          '标高 $elevation',
           style: TextStyle(
             color: CupertinoColors.black.withValues(alpha: 0.54),
             fontWeight: FontWeight.w600,
@@ -402,8 +434,7 @@ class _ElevatedButton extends StatelessWidget {
   }
 }
 
-/// Side-by-side comparison card: a small glass surface over a colorful
-/// background, with the specified whitenStrength applied.
+// 白化对比卡片子组件
 class _WhitenCard extends StatelessWidget {
   const _WhitenCard({
     required this.label,
@@ -421,12 +452,11 @@ class _WhitenCard extends StatelessWidget {
           height: 100,
           child: Stack(
             children: [
-              // Colorful content behind the glass
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
                           Color(0xFFFF6B6B),
@@ -436,8 +466,9 @@ class _WhitenCard extends StatelessWidget {
                       ),
                     ),
                     child: Center(
+                      // 汉化底层内容文字
                       child: Text(
-                        'Content Behind Glass',
+                        '玻璃下方底层内容',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -448,7 +479,6 @@ class _WhitenCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Glass overlay with whiten
               Positioned.fill(
                 child: AdaptiveGlass(
                   shape: const LiquidRoundedSuperellipse(borderRadius: 16),
