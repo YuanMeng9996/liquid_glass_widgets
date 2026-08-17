@@ -1,41 +1,37 @@
-/// Indicator Parity Demo
-///
-/// Shows all five [AnimatedGlassIndicator]-powered widgets side-by-side with
-/// live tuning sliders so you can compare and calibrate iOS 26 parity:
-///   • GlassSegmentedControl (flat track)
-///   • GlassSegmentedControl with icons + labels
-///   • GlassTabBar.inline (compact glass track, text-only)
-///   • GlassTabBar.bottom
-///   • GlassTabBar.searchable
-///
-/// Run standalone:
-///   flutter run -t example/lib/demos/indicator_parity_demo.dart
+// 声明当前 Dart 库文件
 library;
 
+// 导入 Flutter 官方 Cupertino 风格 iOS 拟真交互控件库
 import 'package:flutter/cupertino.dart';
+// 导入 Flutter 核心 Material Design 基础组件库
 import 'package:flutter/material.dart';
 
+// 导入 liquid_glass_widgets 流体玻璃渲染核心组件库
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
-// Capsule sentinel — delegates to GlassDefaults so the demo stays in sync
-// with the package constant. Both bar and indicator pass this through to the
-// shader so it clamps to a true capsule at any bar height.
+// 胶囊半圆哨兵常量
 const _kCapsuleSentinel = GlassDefaults.capsuleRadius;
-// The slider UI travels 4..36; at the max position we remap to _kCapsuleSentinel.
+// 滑块最大阈值对应纯胶囊
 const _kSliderCapsuleThreshold = 36.0;
 
+// 异步主函数入口点
 void main() async {
+  // 初始化 Flutter 底层绑定通道
   WidgetsFlutterBinding.ensureInitialized();
+  // 初始化流体玻璃着色器
   await LiquidGlassWidgets.initialize();
+  // 启动 Demo 应用
   runApp(LiquidGlassWidgets.wrap(child: const _DemoApp()));
 }
 
+// 根应用无状态组件
 class _DemoApp extends StatelessWidget {
   const _DemoApp();
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
-      title: 'Indicator Parity',
+      // 汉化应用标题
+      title: '胶囊指示器物理调优实验室',
       debugShowCheckedModeBanner: false,
       theme: const CupertinoThemeData(brightness: Brightness.dark),
       builder: (context, child) => Theme(
@@ -47,10 +43,7 @@ class _DemoApp extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// Main page
-// =============================================================================
-
+// 胶囊调优实验室页面 StatefulWidget
 class IndicatorParityDemoPage extends StatefulWidget {
   const IndicatorParityDemoPage({super.key});
 
@@ -59,33 +52,26 @@ class IndicatorParityDemoPage extends StatefulWidget {
       _IndicatorParityDemoPageState();
 }
 
+// 胶囊调优实验室 State 类
 class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
-  // ── Shared live tuning values ──────────────────────────────────────────────
+  // 捏合收缩力度
   double _pinchStrength = 0.4;
+  // 水平动态延展像素
   double _expansionH = 12.0;
+  // 垂直动态延展像素
   double _expansionV = 8.0;
+  // 光学色散与色差系数
   double _aberration = 0.15;
-  // glassColor alpha — 0.0 = no tint (new default), 0.15 = old default
+  // 玻璃底色透明度
   double _glassTint = 0.0;
-  // refractiveIndex — 1.15 matches GlassDefaults.refractiveIndex, the same
-  // value used by all Apple demos and the main example app.
+  // 光学折射率
   double _refraction = 1.15;
-  // ── Shape — 3-tier radius hierarchy ─────────────────────────────────────
-  // Tier 1 (default): both bar and indicator are capsule (iOS 26 authentic).
-  //   9999 is the sentinel value — widgets pass it directly to the shader so
-  //   it clamps to a perfect capsule even during jelly-bloom expansion.
-  // Tier 2 (bar slider): user drags bar radius below 36 → indicator auto-tracks
-  //   at barBorderRadius − 4 (nested-arc formula, same as GlassSegmentedControl).
-  // Tier 3 (indicator slider): explicit override, shown with a Reset-to-Auto button.
-  //
-  // Slider mapping: the slider travels 4..36 in the UI. When the slider is at
-  // its maximum (36), we write 9999.0 to mean "true capsule sentinel". Values
-  // below 36 are written verbatim.
-  double _barBorderRadius = _kCapsuleSentinel; // default: true capsule (iOS 26)
-  double?
-      _indicatorBorderRadiusOverride; // null = auto (capsule or barRadius − 4)
+  // 外底栏圆角大小
+  double _barBorderRadius = _kCapsuleSentinel;
+  // 内指示器圆角大小覆盖值
+  double? _indicatorBorderRadiusOverride;
 
-  // ── Per-widget state ───────────────────────────────────────────────────────
+  // 各组件选中索引状态
   int _segSelected = 0;
   int _tabSelected = 0;
   int _inlineSelected = 0;
@@ -94,39 +80,37 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
   int _searchBarSelected = 0;
   bool _isSearching = false;
 
-  // ── Tab/segment data ───────────────────────────────────────────────────────
+  // 汉化分段选项数据
   static const _segments = <GlassSegment>[
-    GlassSegment(label: 'Journals'),
-    GlassSegment(label: 'Photos'),
-    GlassSegment(label: 'Clips')
+    GlassSegment(label: '日志记录'),
+    GlassSegment(label: '精选照片'),
+    GlassSegment(label: '短片视频')
   ];
 
+  // 汉化带图标分段选项数据
   static const _tabs = [
-    GlassSegment(label: 'Featured', icon: Icon(CupertinoIcons.star_fill)),
-    GlassSegment(label: 'Browse', icon: Icon(CupertinoIcons.square_grid_2x2)),
-    GlassSegment(label: 'Charts', icon: Icon(CupertinoIcons.chart_bar_fill)),
-    GlassSegment(label: 'Radio', icon: Icon(CupertinoIcons.radiowaves_left)),
+    GlassSegment(label: '精选', icon: Icon(CupertinoIcons.star_fill)),
+    GlassSegment(label: '浏览', icon: Icon(CupertinoIcons.square_grid_2x2)),
+    GlassSegment(label: '排行', icon: Icon(CupertinoIcons.chart_bar_fill)),
+    GlassSegment(label: '电台', icon: Icon(CupertinoIcons.radiowaves_left)),
   ];
 
+  // 汉化底部栏标签数据
   static const _barTabs = <GlassTab>[
-    GlassTab(label: 'Home', icon: Icon(CupertinoIcons.home)),
-    GlassTab(label: 'Discover', icon: Icon(CupertinoIcons.compass_fill)),
-    GlassTab(label: 'Library', icon: Icon(CupertinoIcons.book_fill)),
-    GlassTab(label: 'Profile', icon: Icon(CupertinoIcons.person_fill)),
+    GlassTab(label: '首页', icon: Icon(CupertinoIcons.home)),
+    GlassTab(label: '探索', icon: Icon(CupertinoIcons.compass_fill)),
+    GlassTab(label: '资料库', icon: Icon(CupertinoIcons.book_fill)),
+    GlassTab(label: '个人中心', icon: Icon(CupertinoIcons.person_fill)),
   ];
 
-  // Text-only tabs — highlights the label-centric inline use case.
+  // 汉化纯文本标签数据
   static const _inlineTabs = <GlassTab>[
-    GlassTab(label: 'For You'),
-    GlassTab(label: 'Following'),
-    GlassTab(label: 'New'),
+    GlassTab(label: '为你推荐'),
+    GlassTab(label: '正在关注'),
+    GlassTab(label: '最新发布'),
   ];
 
-  // ── Derived ────────────────────────────────────────────────────────────────
-
-  /// Builds the shared indicatorSettings from the live sliders.
-  /// Uses baseIndicatorSettings.copyWith so other base values (blur:0, etc.)
-  /// are preserved — this is the merge-gap fix in action.
+  // 动态构建指示器设置
   LiquidGlassSettings get _indicatorSettings =>
       AnimatedGlassIndicator.baseIndicatorSettings.copyWith(
         chromaticAberration: _aberration,
@@ -139,12 +123,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
         ),
       );
 
+  // 动态构建延展边距
   EdgeInsets get _expansion =>
       EdgeInsets.symmetric(horizontal: _expansionH, vertical: _expansionV);
-
-  // ==========================================================================
-  // Build
-  // ==========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +133,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // ── Background — rich gradient so glass refraction is visible ─────
+          // 渐变折射背景
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -167,52 +148,53 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
               ),
             ),
           ),
-          // Decorative orbs — give the glass something colourful to refract.
-          Positioned(
+          // 五彩光球装饰
+          const Positioned(
             top: 120,
             left: -60,
-            child: _GlowOrb(color: const Color(0xFF5E3AFF), size: 220),
+            child: _GlowOrb(color: Color(0xFF5E3AFF), size: 220),
           ),
-          Positioned(
+          const Positioned(
             top: 300,
             right: -40,
-            child: _GlowOrb(color: const Color(0xFF0A84FF), size: 180),
+            child: _GlowOrb(color: Color(0xFF0A84FF), size: 180),
           ),
-          Positioned(
+          const Positioned(
             top: 520,
             left: 60,
-            child: _GlowOrb(color: const Color(0xFFFF375F), size: 160),
+            child: _GlowOrb(color: Color(0xFFFF375F), size: 160),
           ),
-          Positioned(
+          const Positioned(
             top: 720,
             right: 20,
-            child: _GlowOrb(color: const Color(0xFF30D158), size: 140),
+            child: _GlowOrb(color: Color(0xFF30D158), size: 140),
           ),
-          Positioned(
+          const Positioned(
             top: 920,
             left: -30,
-            child: _GlowOrb(color: const Color(0xFFFFD60A), size: 150),
+            child: _GlowOrb(color: Color(0xFFFFD60A), size: 150),
           ),
 
-          // ── Scrollable content ────────────────────────────────────────────
+          // 内容滚动列表
           SafeArea(
             bottom: false,
             child: ListView(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 240),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 240),
               children: [
-                // Title
+                // 汉化主标题
                 Text(
-                  'Indicator Parity',
+                  '胶囊指示器物理调优实验室',
                   style: TextStyle(
                     color: CupertinoColors.white,
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
                   ),
                 ),
                 SizedBox(height: 4),
+                // 汉化副标题
                 Text(
-                  'iOS 26 calibration — all six pill widgets, live tuning',
+                  'iOS 26 拟真质感校准 — 6 种胶囊组件实时物理调优',
                   style: TextStyle(
                     color: CupertinoColors.white.withValues(alpha: 0.5),
                     fontSize: 13,
@@ -221,7 +203,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 20),
 
-                // ── Tuner panel ─────────────────────────────────────────────
+                // 调谐控制台组件
                 _TunerPanel(
                   pinchStrength: _pinchStrength,
                   expansionH: _expansionH,
@@ -247,9 +229,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 28),
 
-                // ── GlassSegmentedControl ────────────────────────────────────
+                // 汉化控件 1：分段控制器（纯文本）
                 _WidgetSection(
-                  label: 'GlassSegmentedControl',
+                  label: '分段控制器 (纯文本胶囊)',
                   color: const Color(0xFF5E3AFF),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -270,9 +252,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 16),
 
-                // ── GlassSegmentedControl ──────────────────────────────────────────────
+                // 汉化控件 2：分段控制器（图标+标签）
                 _WidgetSection(
-                  label: 'GlassSegmentedControl',
+                  label: '分段控制器 (图标+标签复合胶囊)',
                   color: const Color(0xFF0A84FF),
                   child: Padding(
                     padding: EdgeInsets.all(16),
@@ -282,10 +264,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                       onSegmentSelected: (i) =>
                           setState(() => _tabSelected = i),
                       quality: GlassQuality.premium,
-                      // height: 56 required for icon + label tabs.
-                      // Default 44 is for icon-only or text-only.
                       height: 56,
-                      // Full-pill radius is now the default out of the box!
                       iconSize: 20,
                       selectedTextStyle: TextStyle(
                         fontSize: 11,
@@ -306,14 +285,12 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 16),
 
-                // ── GlassTabBar.inline ───────────────────────────────────────
+                // 汉化控件 3：内联标签栏（纯文本）
                 _WidgetSection(
-                  label: 'GlassTabBar.inline',
+                  label: '内联流体标签栏 (纯文本模式)',
                   color: const Color(0xFF30B0C7),
                   child: Column(
                     children: [
-                      // Extra breathing room — the 40px glass track refracts
-                      // anything within ~20px. Push label clear of the surface.
                       SizedBox(height: 24),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -336,8 +313,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 16),
 
+                // 汉化控件 4：内联标签栏（图标+文字）
                 _WidgetSection(
-                  label: 'GlassTabBar.inline (icon + text)',
+                  label: '内联流体标签栏 (图标+文字模式)',
                   color: const Color(0xFF5AC8FA),
                   child: Column(
                     children: [
@@ -361,9 +339,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 16),
 
-                // ── GlassTabBar.bottom (Premium) ─────────────────────────────
+                // 汉化控件 5：底部栏（旗舰画质）
                 _WidgetSection(
-                  label: 'GlassBottomBar — Premium',
+                  label: '流体底部导航栏 — 旗舰画质 (Premium)',
                   color: const Color(0xFFFF375F),
                   child: GlassTabBar.bottom(
                     tabs: _barTabs,
@@ -380,9 +358,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 16),
 
-                // ── GlassTabBar.bottom (Standard) ─────────────────────────────
+                // 汉化控件 6：底部栏（标准画质）
                 _WidgetSection(
-                  label: 'GlassBottomBar — Standard',
+                  label: '流体底部导航栏 — 标准画质 (Standard)',
                   color: const Color(0xFFFF9F0A),
                   child: GlassTabBar.bottom(
                     tabs: _barTabs,
@@ -399,9 +377,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 16),
 
-                // ── GlassSearchableBottomBar ─────────────────────────────────
+                // 汉化控件 7：可搜索底部栏
                 _WidgetSection(
-                  label: 'GlassSearchableBottomBar',
+                  label: '支持搜索展开的流体底部栏',
                   color: const Color(0xFF30D158),
                   child: GlassTabBar.searchable(
                     tabs: _barTabs,
@@ -416,7 +394,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                     barBorderRadius: _barBorderRadius,
                     indicatorBorderRadius: _indicatorBorderRadiusOverride,
                     searchConfig: GlassSearchBarConfig(
-                      hintText: 'Search…',
+                      hintText: '搜索内容…',
                       showsCancelButton: true,
                       onSearchToggle: (v) => setState(() => _isSearching = v),
                     ),
@@ -425,7 +403,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
 
                 SizedBox(height: 24),
 
-                // ── Live values badge ────────────────────────────────────────
+                // 实时代码片段徽章
                 _LiveValuesBadge(
                   pinchStrength: _pinchStrength,
                   expansionH: _expansionH,
@@ -441,10 +419,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
   }
 }
 
-// =============================================================================
-// Tuner panel — collapsible, default closed
-// =============================================================================
-
+// 调谐器面板组件
 class _TunerPanel extends StatefulWidget {
   const _TunerPanel({
     required this.pinchStrength,
@@ -473,8 +448,6 @@ class _TunerPanel extends StatefulWidget {
   final double glassTint;
   final double refraction;
   final double barBorderRadius;
-
-  /// null = auto (barBorderRadius − 4). Non-null = explicit Tier-3 override.
   final double? indicatorBorderRadius;
   final ValueChanged<double> onPinchChanged;
   final ValueChanged<double> onExpansionHChanged;
@@ -484,8 +457,6 @@ class _TunerPanel extends StatefulWidget {
   final ValueChanged<double> onRefractionChanged;
   final ValueChanged<double> onBarBorderRadiusChanged;
   final ValueChanged<double> onIndicatorBorderRadiusChanged;
-
-  /// Resets indicator radius back to auto (Tier 2 → Tier 1/2).
   final VoidCallback onResetIndicatorBorderRadius;
 
   @override
@@ -519,7 +490,7 @@ class _TunerPanelState extends State<_TunerPanel> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header row — always visible, tappable ─────────────────────
+              // 汉化头部栏
               GestureDetector(
                 onTap: () => setState(() => _isOpen = !_isOpen),
                 behavior: HitTestBehavior.opaque,
@@ -533,7 +504,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                       SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'LIVE TUNER — bottom bar, searchable & segmented controls',
+                          '实时调谐控制台 — 底栏、搜索栏与分段控件',
                           style: TextStyle(
                             color:
                                 CupertinoColors.white.withValues(alpha: 0.55),
@@ -543,15 +514,14 @@ class _TunerPanelState extends State<_TunerPanel> {
                           ),
                         ),
                       ),
-                      // Current values summary (visible when closed)
                       if (!_isOpen) ...[
                         _MiniValuePill(
-                            label: 'P',
+                            label: '捏合',
                             value: widget.pinchStrength.toStringAsFixed(1),
                             color: const Color(0xFF5E3AFF)),
                         SizedBox(width: 4),
                         _MiniValuePill(
-                            label: 'E',
+                            label: '延展',
                             value:
                                 '${widget.expansionH.round()}×${widget.expansionV.round()}',
                             color: const Color(0xFF0A84FF)),
@@ -572,7 +542,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                 ),
               ),
 
-              // ── Sliders — only when open ──────────────────────────────────
+              // 展开后的汉化滑块列表
               AnimatedSize(
                 duration: const Duration(milliseconds: 280),
                 curve: Curves.easeInOut,
@@ -588,7 +558,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                 color: Color(0x22FFFFFF)),
                             SizedBox(height: 10),
                             _SliderRow(
-                              label: 'Pinch Strength',
+                              label: '捏合收缩力度 (Pinch)',
                               value: widget.pinchStrength,
                               min: 0,
                               max: 1,
@@ -599,7 +569,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                               onChanged: widget.onPinchChanged,
                             ),
                             _SliderRow(
-                              label: 'Expansion H',
+                              label: '水平动态延展 (Expansion H)',
                               value: widget.expansionH,
                               min: 0,
                               max: 28,
@@ -609,7 +579,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                               onChanged: widget.onExpansionHChanged,
                             ),
                             _SliderRow(
-                              label: 'Expansion V',
+                              label: '垂直动态延展 (Expansion V)',
                               value: widget.expansionV,
                               min: 0,
                               max: 20,
@@ -619,7 +589,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                               onChanged: widget.onExpansionVChanged,
                             ),
                             _SliderRow(
-                              label: 'Chromatic Aberration',
+                              label: '光学色散色差 (Aberration)',
                               value: widget.aberration,
                               min: 0,
                               max: 0.5,
@@ -630,7 +600,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                               onChanged: widget.onAberrationChanged,
                             ),
                             _SliderRow(
-                              label: 'Glass Tint (α)',
+                              label: '玻璃底色透明度 (Tint α)',
                               value: widget.glassTint,
                               min: 0,
                               max: 0.5,
@@ -640,7 +610,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                               onChanged: widget.onGlassTintChanged,
                             ),
                             _SliderRow(
-                              label: 'Refraction (n)',
+                              label: '光学折射率 (Refraction n)',
                               value: widget.refraction,
                               min: 1.0,
                               max: 1.5,
@@ -656,11 +626,8 @@ class _TunerPanelState extends State<_TunerPanel> {
                                 thickness: 0.5,
                                 color: Color(0x22FFFFFF)),
                             SizedBox(height: 6),
-                            // ── Shape — 3-tier radius ──────────────────────
-                            // Slider travels 4..36 in the UI; the max value (36)
-                            // is mapped to the 9999 capsule sentinel on write.
                             _SliderRow(
-                              label: 'Bar Radius  (Tier 1→2)',
+                              label: '外底栏圆角 (Bar Radius)',
                               value: widget.barBorderRadius >= _kCapsuleSentinel
                                   ? _kSliderCapsuleThreshold
                                   : widget.barBorderRadius,
@@ -669,17 +636,15 @@ class _TunerPanelState extends State<_TunerPanel> {
                               divisions: 32,
                               displayValue:
                                   widget.barBorderRadius >= _kCapsuleSentinel
-                                      ? 'capsule (default)'
+                                      ? '纯胶囊 (默认)'
                                       : '${widget.barBorderRadius.round()} px',
                               accentColor: const Color(0xFFFF9F0A),
                               onChanged: (v) => widget.onBarBorderRadiusChanged(
-                                // Map slider max → true capsule sentinel
                                 v >= _kSliderCapsuleThreshold
                                     ? _kCapsuleSentinel
                                     : v,
                               ),
                             ),
-                            // Indicator radius — Tier 2 (auto) / Tier 3 (override)
                             Padding(
                               padding: EdgeInsets.only(bottom: 8),
                               child: Column(
@@ -690,7 +655,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        'Indicator Radius  (Tier 2→3)',
+                                        '内指示器圆角 (Indicator Radius)',
                                         style: TextStyle(
                                           color: CupertinoColors.white
                                               .withValues(alpha: 0.7),
@@ -735,7 +700,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                             child: Text(
                                               widget.indicatorBorderRadius ==
                                                       null
-                                                  ? 'auto'
+                                                  ? '自动计算'
                                                   : '${widget.indicatorBorderRadius!.round()} px',
                                               style: TextStyle(
                                                 color: const Color(0xFFFF375F)
@@ -763,8 +728,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                     child: CupertinoSlider(
                                       value: (widget.indicatorBorderRadius ??
                                               (widget.barBorderRadius - 4)
-                                                  .clamp(4.0, 30.0))
-                                          .clamp(4.0, 30.0),
+                                                  .clamp(4.0, 30.0))\n                                          .clamp(4.0, 30.0),
                                       min: 4,
                                       max: 30,
                                       divisions: 26,
@@ -780,8 +744,8 @@ class _TunerPanelState extends State<_TunerPanel> {
                                       child: Text(
                                         widget.barBorderRadius >=
                                                 _kCapsuleSentinel
-                                            ? 'auto: capsule  ·  drag to override'
-                                            : 'auto: bar − 4 = ${(widget.barBorderRadius - 4).clamp(0, 999).round()} px  ·  drag to override',
+                                            ? '自动: 纯胶囊 · 拖动可自定义覆盖'
+                                            : '自动: 底栏 − 4 = ${(widget.barBorderRadius - 4).clamp(0, 999).round()} px · 拖动可自定义覆盖',
                                         style: TextStyle(
                                           color: CupertinoColors.white
                                               .withValues(alpha: 0.35),
@@ -806,7 +770,7 @@ class _TunerPanelState extends State<_TunerPanel> {
   }
 }
 
-/// Compact pill showing a single tuning value in the collapsed tuner header.
+// 辅助组件：迷你药丸标签
 class _MiniValuePill extends StatelessWidget {
   const _MiniValuePill(
       {required this.label, required this.value, required this.color});
@@ -835,6 +799,7 @@ class _MiniValuePill extends StatelessWidget {
   }
 }
 
+// 辅助组件：滑块行
 class _SliderRow extends StatelessWidget {
   const _SliderRow({
     required this.label,
@@ -909,10 +874,7 @@ class _SliderRow extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// Widget section card
-// =============================================================================
-
+// 辅助组件：板块容器
 class _WidgetSection extends StatelessWidget {
   const _WidgetSection({
     required this.label,
@@ -929,7 +891,6 @@ class _WidgetSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Coloured dot + label for identification in the demo
         Row(
           children: [
             Container(
@@ -953,19 +914,13 @@ class _WidgetSection extends StatelessWidget {
           ],
         ),
         SizedBox(height: 8),
-        // Glass sits directly against the demo backdrop — no wrapper container.
-        // Wrapping in a styled container would create a glass-in-glass situation
-        // and cause the indicator glow to refract the container colour.
         child,
       ],
     );
   }
 }
 
-// =============================================================================
-// Live values summary badge
-// =============================================================================
-
+// 辅助组件：实时代码片段
 class _LiveValuesBadge extends StatelessWidget {
   const _LiveValuesBadge({
     required this.pinchStrength,
@@ -991,8 +946,9 @@ class _LiveValuesBadge extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 汉化代码片段标题
           Text(
-            'CURRENT CODE SNIPPET',
+            '当前物理调参实时代码片段',
             style: TextStyle(
               color: CupertinoColors.white.withValues(alpha: 0.4),
               fontSize: 10,
@@ -1004,7 +960,7 @@ class _LiveValuesBadge extends StatelessWidget {
           Text(
             _buildSnippet(),
             style: TextStyle(
-              color: Color(0xFF9EF8A8), // code green
+              color: Color(0xFF9EF8A8),
               fontSize: 11,
               fontFamily: 'Menlo',
               height: 1.6,
@@ -1020,23 +976,20 @@ class _LiveValuesBadge extends StatelessWidget {
     final v = expansionV.round();
     final pinch = pinchStrength.toStringAsFixed(2);
     final aber = aberration.toStringAsFixed(2);
-    return 'GlassTabBar.bottom(\n'
-        '  indicatorPinchStrength: $pinch,\n'
-        '  indicatorExpansion: EdgeInsets.symmetric(\n'
-        '    horizontal: $h, vertical: $v,\n'
-        '  ),\n'
-        '  indicatorSettings:\n'
-        '    AnimatedGlassIndicator.baseIndicatorSettings\n'
-        '      .copyWith(chromaticAberration: $aber),\n'
-        '  // Same params on all 4 widgets ↑\n'
+    return 'GlassTabBar.bottom(\\n'
+        '  indicatorPinchStrength: $pinch,\\n'
+        '  indicatorExpansion: EdgeInsets.symmetric(\\n'
+        '    horizontal: $h, vertical: $v,\\n'
+        '  ),\\n'
+        '  indicatorSettings:\\n'
+        '    AnimatedGlassIndicator.baseIndicatorSettings\\n'
+        '      .copyWith(chromaticAberration: $aber),\\n'
+        '  // 以上物理参数在 4 个流体组件上完全通用 ↑\\n'
         ')';
   }
 }
 
-// =============================================================================
-// Glow orb — decorative background circle for refraction
-// =============================================================================
-
+// 装饰光晕背景圆球
 class _GlowOrb extends StatelessWidget {
   const _GlowOrb({required this.color, required this.size});
   final Color color;
