@@ -1,32 +1,22 @@
-// Copyright 2026, Sebastian Degenaar for pixel-innovations.com (liquid_glass_widgets)
-//
-// SPDX-License-Identifier: MIT
-
-/// Meniscus Rim Darkening & 24-Tap Progressive Blur showcase.
-///
-/// Demonstrates [LiquidGlassSettings.edgeAbsorption] across every interactive
-/// component that uses [AnimatedGlassIndicator]:
-///   • GlassCard (static glass surface)
-///   • GlassSegmentedControl (animated pill)
-///   • GlassSlider (thumb indicator)
-///   • GlassSwitch (thumb indicator)
-///   • ProgressiveBlur (24-tap IIR optimisation)
-///
-/// All sliders drive live shader uniforms — no hot-reload required.
-///
-/// To run directly:
-///   flutter run -t example/lib/demos/meniscus_and_blur_demo.dart
+// 声明当前 Dart 库文件
 library;
 
+// 导入 Flutter 官方 Cupertino 风格 iOS 拟真组件库
 import 'package:flutter/cupertino.dart';
+// 导入 liquid_glass_widgets 流体玻璃渲染核心组件库
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
+// 异步主函数入口点
 void main() async {
+  // 初始化 Flutter 底层绑定
   WidgetsFlutterBinding.ensureInitialized();
+  // 初始化流体玻璃着色器
   await LiquidGlassWidgets.initialize();
+  // 启动 Demo 应用
   runApp(LiquidGlassWidgets.wrap(child: const MeniscusAndBlurDemoApp()));
 }
 
+// 演示应用根 StatelessWidget
 class MeniscusAndBlurDemoApp extends StatelessWidget {
   const MeniscusAndBlurDemoApp({super.key});
 
@@ -34,17 +24,15 @@ class MeniscusAndBlurDemoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const CupertinoApp(
       debugShowCheckedModeBanner: false,
-      title: 'Meniscus & Blur Showcase',
+      // 汉化应用标题
+      title: '光学边缘暗化与 24 抽样模糊实验室',
       theme: CupertinoThemeData(brightness: Brightness.dark),
       home: MeniscusAndBlurDemoPage(),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────────────────────────────────────
-
+// 边缘暗化与模糊实验室 StatefulWidget
 class MeniscusAndBlurDemoPage extends StatefulWidget {
   const MeniscusAndBlurDemoPage({super.key});
 
@@ -53,14 +41,18 @@ class MeniscusAndBlurDemoPage extends StatefulWidget {
       _MeniscusAndBlurDemoPageState();
 }
 
+// 边缘暗化与模糊实验室 State 类
 class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
-  // ── Tunable shader parameters ──────────────────────────────────────────────
+  // 比尔-朗伯定律边缘吸光率 (edgeAbsorption)
   double _edgeAbsorption = 0.0;
+  // 菲涅尔发丝高光边缘强度 (fresnelStrength)
   double _fresnelStrength = 1.0;
+  // 玻璃物理厚度
   double _thickness = 25.0;
+  // 24-Tap 渐进模糊半径 (blur)
   double _blur = 12.0;
 
-  // ── Widget state ───────────────────────────────────────────────────────────
+  // 各组件交互状态
   int _segmentIndex = 0;
   int _tabBarPillIndex = 0;
   int _tabBarNavIndex = 1;
@@ -70,9 +62,10 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
   int _backgroundIndex = 1;
   bool _isDarkMode = true;
 
+  // 汉化折射渐变背景预设
   static const List<(String, List<Color>)> _backgrounds = [
     (
-      'Sunset Glow',
+      '日落余晖',
       [
         Color(0xFFFF5E3A),
         Color(0xFFFF2A68),
@@ -81,7 +74,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
       ]
     ),
     (
-      'Pacific Deep',
+      '深邃太平洋',
       [
         Color(0xFF00C6FF),
         Color(0xFF0072FF),
@@ -90,7 +83,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
       ]
     ),
     (
-      'Emerald Forest',
+      '翡翠森林',
       [
         Color(0xFF11998E),
         Color(0xFF38EF7D),
@@ -99,7 +92,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
       ]
     ),
     (
-      'Monochrome',
+      '极简黑白',
       [
         Color(0xFFE0E0E0),
         Color(0xFF9E9E9E),
@@ -109,7 +102,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     ),
   ];
 
-  // Shared settings built from the sliders — surface glass components use this.
+  // 动态构建表面玻璃设置
   LiquidGlassSettings get _liveSettings => LiquidGlassSettings(
         thickness: _thickness,
         blur: _blur,
@@ -121,10 +114,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
             : const Color.fromARGB(40, 255, 255, 255),
       );
 
-  // Indicator-specific settings — sliding pill indicators are transparent optical
-  // lenses (blur: 0) over text/icons. We copy baseIndicatorSettings and inject the
-  // live edgeAbsorption and fresnelStrength sliders so rim tuning works without
-  // smearing the text underneath.
+  // 动态构建指示器光学设置
   LiquidGlassSettings get _indicatorLiveSettings =>
       AnimatedGlassIndicator.baseIndicatorSettings.copyWith(
         edgeAbsorption: _edgeAbsorption,
@@ -143,8 +133,9 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
       ),
       child: GlassScaffold(
         topEdgeFade: true,
+        // 汉化应用栏标题
         appBar: GlassAppBar(
-          title: const Text('Meniscus & Blur Lab'),
+          title: const Text('光学边缘暗化与 24 抽样模糊实验室'),
           actions: [
             CupertinoButton(
               padding: EdgeInsets.zero,
@@ -179,14 +170,14 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
             children: [
-              // ── 1. Background picker ─────────────────────────────────────
-              _sectionHeader('BACKGROUND'),
+              // ── 1. 汉化背景选择区 ──────────────────────────────────────────
+              _sectionHeader('1. 动态折射背景切换'),
               const SizedBox(height: 8),
               _backgroundPicker(),
               const SizedBox(height: 28),
 
-              // ── 2. Parameter Tuner ───────────────────────────────────────
-              _sectionHeader('LIVE PARAMETER TUNER'),
+              // ── 2. 汉化物理参数调参器 ──────────────────────────────────────
+              _sectionHeader('2. 实时物理着色器调参器'),
               const SizedBox(height: 8),
               GlassCard(
                 useOwnLayer: true,
@@ -196,7 +187,6 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header row
                     Row(
                       children: [
                         Container(
@@ -217,17 +207,19 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // 汉化比尔-朗伯定律标题
                               Text(
-                                'Beer-Lambert Rim Absorption',
+                                '比尔-朗伯定律边缘吸光 (Beer-Lambert)',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: labelColor,
                                 ),
                               ),
                               const SizedBox(height: 2),
+                              // 汉化说明
                               Text(
-                                'All components below update in real time',
+                                '下方所有流体玻璃控件均实时响应此参数',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: labelColor.withValues(alpha: 0.55),
@@ -240,41 +232,42 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Presets
+                    // 汉化快捷预设按钮
                     Row(
                       children: [
-                        _presetChip('Flat (0.0)', 0.0),
+                        _presetChip('纯平 (0.0)', 0.0),
                         const SizedBox(width: 8),
-                        _presetChip('iOS 26 (0.15)', 0.15),
+                        _presetChip('iOS 26 标准 (0.15)', 0.15),
                         const SizedBox(width: 8),
-                        _presetChip('Crystal (0.35)', 0.35),
+                        _presetChip('晶莹水晶 (0.35)', 0.35),
                       ],
                     ),
                     const SizedBox(height: 16),
 
+                    // 汉化四大物理滑块
                     _slider(
-                      label: 'Edge Absorption',
+                      label: '边缘吸光率 (Edge Absorption)',
                       value: _edgeAbsorption,
                       min: 0.0,
                       max: 0.60,
                       onChanged: (v) => setState(() => _edgeAbsorption = v),
                     ),
                     _slider(
-                      label: 'Fresnel Rim Intensity',
+                      label: '菲涅尔高光边缘强度 (Fresnel)',
                       value: _fresnelStrength,
                       min: 0.0,
                       max: 2.0,
                       onChanged: (v) => setState(() => _fresnelStrength = v),
                     ),
                     _slider(
-                      label: 'Glass Thickness',
+                      label: '玻璃物理厚度 (Thickness)',
                       value: _thickness,
                       min: 5.0,
                       max: 60.0,
                       onChanged: (v) => setState(() => _thickness = v),
                     ),
                     _slider(
-                      label: 'Blur Sigma (24-tap)',
+                      label: '模糊半径 (24-Tap Progressive)',
                       value: _blur,
                       min: 0.0,
                       max: 30.0,
@@ -285,11 +278,11 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
               ),
               const SizedBox(height: 28),
 
-              // ── 3. Side-by-side Card comparison ─────────────────────────
-              _sectionHeader('MENISCUS RIM DARKENING — CARD'),
+              // ── 3. 汉化边缘暗化卡片对比 ────────────────────────────────────
+              _sectionHeader('3. 边缘暗化光学对比 — 玻璃卡片'),
               const SizedBox(height: 4),
               Text(
-                'Drag the Edge Absorption slider above to compare.',
+                '拖动上方的边缘吸光率滑块观察边缘暗化对比。',
                 style: TextStyle(
                     fontSize: 12, color: labelColor.withValues(alpha: 0.5)),
               ),
@@ -298,7 +291,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 children: [
                   Expanded(
                     child: _comparisonCard(
-                      label: 'Flat  0.0',
+                      label: '无暗化  0.0',
                       absorption: 0.0,
                       icon: CupertinoIcons.circle,
                       accent: CupertinoColors.systemGrey,
@@ -307,7 +300,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _comparisonCard(
-                      label: 'Live  ${_edgeAbsorption.toStringAsFixed(2)}',
+                      label: '实时调谐  ${_edgeAbsorption.toStringAsFixed(2)}',
                       absorption: _edgeAbsorption,
                       icon: CupertinoIcons.sparkles,
                       accent: CupertinoColors.activeBlue,
@@ -318,11 +311,11 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
               ),
               const SizedBox(height: 28),
 
-              // ── 4. Segmented Control pill ────────────────────────────────
-              _sectionHeader('ANIMATED PILL — GLASS SEGMENTED CONTROL'),
+              // ── 4. 汉化分段控制器胶囊 ──────────────────────────────────────
+              _sectionHeader('4. 动态胶囊指示器 — 分段控制器'),
               const SizedBox(height: 4),
               Text(
-                'Drag between segments — watch meniscus depth on the moving pill.',
+                '在分段间拖拽滑动 — 观察运动胶囊上的半月板边缘折射深度。',
                 style: TextStyle(
                     fontSize: 12, color: labelColor.withValues(alpha: 0.5)),
               ),
@@ -332,18 +325,18 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 onSegmentSelected: (i) => setState(() => _segmentIndex = i),
                 indicatorSettings: _indicatorLiveSettings,
                 segments: const [
-                  GlassSegment(label: 'Flat'),
-                  GlassSegment(label: 'iOS 26'),
-                  GlassSegment(label: 'Crystal'),
+                  GlassSegment(label: '平面模式'),
+                  GlassSegment(label: 'iOS 26 模式'),
+                  GlassSegment(label: '水晶模式'),
                 ],
               ),
               const SizedBox(height: 28),
 
-              // ── 5. Slider thumb ──────────────────────────────────────────
-              _sectionHeader('ANIMATED PILL — GLASS SLIDER'),
+              // ── 5. 汉化玻璃滑块 ────────────────────────────────────────────
+              _sectionHeader('5. 动态胶囊指示器 — 玻璃滑块'),
               const SizedBox(height: 4),
               Text(
-                'The thumb is an AnimatedGlassIndicator — same absorption applies.',
+                '滑块圆钮同样基于动态玻璃指示器渲染 — 继承相同的光学暗化。',
                 style: TextStyle(
                     fontSize: 12, color: labelColor.withValues(alpha: 0.5)),
               ),
@@ -355,11 +348,11 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
               ),
               const SizedBox(height: 28),
 
-              // ── 6. Switch thumbs ─────────────────────────────────────────
-              _sectionHeader('ANIMATED PILL — GLASS SWITCH'),
+              // ── 6. 汉化玻璃开关 ────────────────────────────────────────────
+              _sectionHeader('6. 动态胶囊指示器 — 拟真玻璃开关'),
               const SizedBox(height: 4),
               Text(
-                'The circular thumb uses the same indicator pipeline.',
+                '圆形开关旋钮采用相同的光学折射渲染管线。',
                 style: TextStyle(
                     fontSize: 12, color: labelColor.withValues(alpha: 0.5)),
               ),
@@ -368,7 +361,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 children: [
                   Expanded(
                     child: _switchRow(
-                      label: 'Enable feature',
+                      label: '启用流体特性',
                       value: _switchValue,
                       onChanged: (v) => setState(() => _switchValue = v),
                     ),
@@ -376,7 +369,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: _switchRow(
-                      label: 'Dark contrast',
+                      label: '深色高对比度',
                       value: _switch2Value,
                       onChanged: (v) => setState(() => _switch2Value = v),
                     ),
@@ -385,19 +378,19 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
               ),
               const SizedBox(height: 28),
 
-              // ── 7. Premium Glass Tab Bars ────────────────────────────────
-              _sectionHeader('GLASS TAB BAR — PREMIUM QUALITY (2 VARIANTS)'),
+              // ── 7. 汉化旗舰级标签栏 ────────────────────────────────────────
+              _sectionHeader('7. 旗舰级流体玻璃标签栏 (2 种变体)'),
               const SizedBox(height: 4),
               Text(
-                'Full GlassQuality.premium path — authentic 3D optical separation under the Fresnel hairline rim with jelly-spring tracking.',
+                '全套 GlassQuality.premium 管线 — 菲涅尔发丝级高光边缘与果冻弹性物理追踪。',
                 style: TextStyle(
                     fontSize: 12, color: labelColor.withValues(alpha: 0.5)),
               ),
               const SizedBox(height: 12),
 
-              // Style A: Capsule Text Switcher
+              // 变体 1
               Text(
-                'Variant 1: Capsule Inline Switcher',
+                '变体 1：胶囊内嵌纯文本切换器',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -412,17 +405,17 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 settings: _liveSettings,
                 indicatorSettings: _indicatorLiveSettings,
                 tabs: const [
-                  GlassTab(label: 'Overview'),
-                  GlassTab(label: 'Refraction'),
-                  GlassTab(label: 'Meniscus'),
-                  GlassTab(label: 'Physics'),
+                  GlassTab(label: '概览'),
+                  GlassTab(label: '光学折射'),
+                  GlassTab(label: '半月板暗化'),
+                  GlassTab(label: '物理动效'),
                 ],
               ),
               const SizedBox(height: 18),
 
-              // Style B: Rich Navigation Bar with Icons & Glow
+              // 变体 2
               Text(
-                'Variant 2: Icon + Label Navigation Bar',
+                '变体 2：图标+文字发光导航栏',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -444,33 +437,33 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 tabs: const [
                   GlassTab(
                     icon: Icon(CupertinoIcons.sparkles),
-                    label: 'Meniscus',
+                    label: '半月板',
                     glowColor: CupertinoColors.activeBlue,
                   ),
                   GlassTab(
                     icon: Icon(CupertinoIcons.waveform_path),
-                    label: 'Optics',
+                    label: '光学',
                     glowColor: CupertinoColors.systemIndigo,
                   ),
                   GlassTab(
                     icon: Icon(CupertinoIcons.slider_horizontal_3),
-                    label: 'Tuner',
+                    label: '调谐器',
                     glowColor: CupertinoColors.systemTeal,
                   ),
                   GlassTab(
                     icon: Icon(CupertinoIcons.cube_box),
-                    label: 'Bevel',
+                    label: '倒角',
                     glowColor: CupertinoColors.systemPurple,
                   ),
                 ],
               ),
               const SizedBox(height: 28),
 
-              // ── 8. Progressive Blur ──────────────────────────────────────
-              _sectionHeader('24-TAP PROGRESSIVE BLUR (IIR OPTIMISED)'),
+              // ── 8. 汉化 24 采样渐进模糊 ────────────────────────────────────
+              _sectionHeader('8. 24 采样渐进式模糊 (IIR 优化算法)'),
               const SizedBox(height: 4),
               Text(
-                '50% bandwidth reduction · Zero banding · No transcendental exp() in loop',
+                '带宽降低 50% · 零阶梯伪影 · 循环内部无超越函数 exp() 性能开销',
                 style: TextStyle(
                     fontSize: 12, color: labelColor.withValues(alpha: 0.5)),
               ),
@@ -484,8 +477,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
-  // ─── Background picker ────────────────────────────────────────────────────
-
+  // 背景选择器
   Widget _backgroundPicker() {
     return Row(
       children: List.generate(_backgrounds.length, (idx) {
@@ -533,8 +525,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
-  // ─── Comparison card ──────────────────────────────────────────────────────
-
+  // 对比卡片
   Widget _comparisonCard({
     required String label,
     required double absorption,
@@ -583,7 +574,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            active ? 'Beer-Lambert rim depth' : 'No rim absorption',
+            active ? '比尔-朗伯定律边缘暗化' : '无边缘吸光暗化',
             style: const TextStyle(
                 fontSize: 11, color: CupertinoColors.systemGrey),
             textAlign: TextAlign.center,
@@ -593,8 +584,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
-  // ─── Switch row ───────────────────────────────────────────────────────────
-
+  // 开关行
   Widget _switchRow({
     required String label,
     required bool value,
@@ -624,8 +614,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
-  // ─── Progressive blur showcase ────────────────────────────────────────────
-
+  // 渐进式模糊展示
   Widget _progressiveBlurShowcase(Color labelColor) {
     return Container(
       height: 150,
@@ -638,7 +627,6 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // Content underneath the blur
           Positioned.fill(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -650,7 +638,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'kHalf 48 → 24 · IIR Multiply Recurrence',
+                  '半核 48 优化至 24 · IIR 乘法递推算法',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -658,21 +646,19 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Zero transcendental exp() calls inside the blur loop',
+                  '模糊核心循环中 0 超越指数函数 exp() 开销',
                   style: TextStyle(
                       fontSize: 11, color: labelColor.withValues(alpha: 0.55)),
                 ),
               ],
             ),
           ),
-          // The progressive blur overlay
           Positioned.fill(
             child: ProgressiveBlur(
               maxSigma: _blur.clamp(4, 30),
               direction: ProgressiveBlurDirection.topToBottom,
             ),
           ),
-          // Label badge
           Positioned(
             bottom: 12,
             right: 12,
@@ -698,8 +684,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
-  // ─── Shared UI helpers ────────────────────────────────────────────────────
-
+  // 章节标题
   Widget _sectionHeader(String title) {
     return Text(
       title,
@@ -712,6 +697,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
+  // 预设芯片
   Widget _presetChip(String label, double value) {
     final isSelected = (_edgeAbsorption - value).abs() < 0.01;
     return Expanded(
@@ -744,6 +730,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
     );
   }
 
+  // 物理滑块通用行
   Widget _slider({
     required String label,
     required double value,
@@ -792,10 +779,7 @@ class _MeniscusAndBlurDemoPageState extends State<MeniscusAndBlurDemoPage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Background grid painter
-// ─────────────────────────────────────────────────────────────────────────────
-
+// 动态网格背景绘制器
 class _GridPatternPainter extends CustomPainter {
   const _GridPatternPainter({required this.isDark});
 
