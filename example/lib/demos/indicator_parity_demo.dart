@@ -182,7 +182,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 240),
               children: [
                 // 汉化主标题
-                Text(
+                const Text(
                   '胶囊指示器物理调优实验室',
                   style: TextStyle(
                     color: CupertinoColors.white,
@@ -191,7 +191,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                     letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 // 汉化副标题
                 Text(
                   'iOS 26 拟真质感校准 — 6 种胶囊组件实时物理调优',
@@ -201,7 +201,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   ),
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // 调谐控制台组件
                 _TunerPanel(
@@ -227,14 +227,14 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                       setState(() => _indicatorBorderRadiusOverride = null),
                 ),
 
-                SizedBox(height: 28),
+                const SizedBox(height: 28),
 
                 // 汉化控件 1：分段控制器（纯文本）
                 _WidgetSection(
                   label: '分段控制器 (纯文本胶囊)',
                   color: const Color(0xFF5E3AFF),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     child: GlassSegmentedControl(
                       segments: _segments,
                       selectedIndex: _segSelected,
@@ -250,14 +250,14 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 汉化控件 2：分段控制器（图标+标签）
                 _WidgetSection(
                   label: '分段控制器 (图标+标签复合胶囊)',
                   color: const Color(0xFF0A84FF),
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: GlassSegmentedControl(
                       segments: _tabs,
                       selectedIndex: _tabSelected,
@@ -266,11 +266,11 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                       quality: GlassQuality.premium,
                       height: 56,
                       iconSize: 20,
-                      selectedTextStyle: TextStyle(
+                      selectedTextStyle: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
-                      unselectedTextStyle: TextStyle(
+                      unselectedTextStyle: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w400,
                       ),
@@ -283,7 +283,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 汉化控件 3：内联标签栏（纯文本）
                 _WidgetSection(
@@ -291,9 +291,9 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   color: const Color(0xFF30B0C7),
                   child: Column(
                     children: [
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: GlassTabBar.inline(
                           tabs: _inlineTabs,
                           selectedIndex: _inlineSelected,
@@ -306,12 +306,12 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                           indicatorSettings: _indicatorSettings,
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 汉化控件 4：内联标签栏（图标+文字）
                 _WidgetSection(
@@ -319,7 +319,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   color: const Color(0xFF5AC8FA),
                   child: Column(
                     children: [
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       GlassTabBar.inline(
                         tabs: _barTabs,
                         selectedIndex: _inlineIconSelected,
@@ -332,12 +332,12 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                         indicatorPinchStrength: _pinchStrength,
                         indicatorSettings: _indicatorSettings,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 汉化控件 5：底部栏（旗舰画质）
                 _WidgetSection(
@@ -356,7 +356,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 汉化控件 6：底部栏（标准画质）
                 _WidgetSection(
@@ -375,7 +375,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // 汉化控件 7：可搜索底部栏
                 _WidgetSection(
@@ -401,7 +401,7 @@ class _IndicatorParityDemoPageState extends State<IndicatorParityDemoPage> {
                   ),
                 ),
 
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // 实时代码片段徽章
                 _LiveValuesBadge(
@@ -495,13 +495,13 @@ class _TunerPanelState extends State<_TunerPanel> {
                 onTap: () => setState(() => _isOpen = !_isOpen),
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(16, 14, 12, 14),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
                   child: Row(
                     children: [
                       Icon(CupertinoIcons.tuningfork,
                           color: CupertinoColors.white.withValues(alpha: 0.70),
                           size: 14),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           '实时调谐控制台 — 底栏、搜索栏与分段控件',
@@ -519,14 +519,14 @@ class _TunerPanelState extends State<_TunerPanel> {
                             label: '捏合',
                             value: widget.pinchStrength.toStringAsFixed(1),
                             color: const Color(0xFF5E3AFF)),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         _MiniValuePill(
                             label: '延展',
                             value:
                                 '${widget.expansionH.round()}×${widget.expansionV.round()}',
                             color: const Color(0xFF0A84FF)),
                       ],
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       AnimatedRotation(
                         turns: _isOpen ? 0.5 : 0.0,
                         duration: const Duration(milliseconds: 280),
@@ -548,15 +548,15 @@ class _TunerPanelState extends State<_TunerPanel> {
                 curve: Curves.easeInOut,
                 child: _isOpen
                     ? Padding(
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Divider(
+                            const Divider(
                                 height: 1,
                                 thickness: 0.5,
                                 color: Color(0x22FFFFFF)),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             _SliderRow(
                               label: '捏合收缩力度 (Pinch)',
                               value: widget.pinchStrength,
@@ -620,12 +620,12 @@ class _TunerPanelState extends State<_TunerPanel> {
                               accentColor: const Color(0xFF64D2FF),
                               onChanged: widget.onRefractionChanged,
                             ),
-                            SizedBox(height: 6),
-                            Divider(
+                            const SizedBox(height: 6),
+                            const Divider(
                                 height: 1,
                                 thickness: 0.5,
                                 color: Color(0x22FFFFFF)),
-                            SizedBox(height: 6),
+                            const SizedBox(height: 6),
                             _SliderRow(
                               label: '外底栏圆角 (Bar Radius)',
                               value: widget.barBorderRadius >= _kCapsuleSentinel
@@ -646,7 +646,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.only(bottom: 8),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -673,7 +673,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                                   .onResetIndicatorBorderRadius,
                                               child: Padding(
                                                 padding:
-                                                    EdgeInsets.only(right: 6),
+                                                    const EdgeInsets.only(right: 6),
                                                 child: Icon(
                                                   CupertinoIcons.refresh,
                                                   size: 14,
@@ -683,7 +683,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                               ),
                                             ),
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFFF375F)
@@ -728,7 +728,8 @@ class _TunerPanelState extends State<_TunerPanel> {
                                     child: CupertinoSlider(
                                       value: (widget.indicatorBorderRadius ??
                                               (widget.barBorderRadius - 4)
-                                                  .clamp(4.0, 30.0))\n                                          .clamp(4.0, 30.0),
+                                                  .clamp(4.0, 30.0))
+                                          .clamp(4.0, 30.0),
                                       min: 4,
                                       max: 30,
                                       divisions: 26,
@@ -740,7 +741,7 @@ class _TunerPanelState extends State<_TunerPanel> {
                                   if (widget.indicatorBorderRadius == null)
                                     Padding(
                                       padding:
-                                          EdgeInsets.only(top: 2, bottom: 2),
+                                          const EdgeInsets.only(top: 2, bottom: 2),
                                       child: Text(
                                         widget.barBorderRadius >=
                                                 _kCapsuleSentinel
@@ -781,7 +782,7 @@ class _MiniValuePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(6),
@@ -824,7 +825,7 @@ class _SliderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -840,7 +841,7 @@ class _SliderRow extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(6),
@@ -901,7 +902,7 @@ class _WidgetSection extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
@@ -913,7 +914,7 @@ class _WidgetSection extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         child,
       ],
     );
@@ -937,7 +938,7 @@ class _LiveValuesBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: CupertinoColors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
@@ -956,10 +957,10 @@ class _LiveValuesBadge extends StatelessWidget {
               letterSpacing: 0.8,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             _buildSnippet(),
-            style: TextStyle(
+            style: const TextStyle(
               color: Color(0xFF9EF8A8),
               fontSize: 11,
               fontFamily: 'Menlo',
@@ -976,15 +977,15 @@ class _LiveValuesBadge extends StatelessWidget {
     final v = expansionV.round();
     final pinch = pinchStrength.toStringAsFixed(2);
     final aber = aberration.toStringAsFixed(2);
-    return 'GlassTabBar.bottom(\\n'
-        '  indicatorPinchStrength: $pinch,\\n'
-        '  indicatorExpansion: EdgeInsets.symmetric(\\n'
-        '    horizontal: $h, vertical: $v,\\n'
-        '  ),\\n'
-        '  indicatorSettings:\\n'
-        '    AnimatedGlassIndicator.baseIndicatorSettings\\n'
-        '      .copyWith(chromaticAberration: $aber),\\n'
-        '  // 以上物理参数在 4 个流体组件上完全通用 ↑\\n'
+    return 'GlassTabBar.bottom(\n'
+        '  indicatorPinchStrength: $pinch,\n'
+        '  indicatorExpansion: EdgeInsets.symmetric(\n'
+        '    horizontal: $h, vertical: $v,\n'
+        '  ),\n'
+        '  indicatorSettings:\n'
+        '    AnimatedGlassIndicator.baseIndicatorSettings\n'
+        '      .copyWith(chromaticAberration: $aber),\n'
+        '  // 以上物理参数在 4 个流体组件上完全通用 ↑\n'
         ')';
   }
 }
