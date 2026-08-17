@@ -1,43 +1,82 @@
+# 声明当前示例工程的唯一包名
 name: liquid_glass_widgets_example
-description: Example app showcasing Apple Liquid Glass widgets
+# 项目的中文功能描述信息
+description: 流体玻璃拟真组件库 (Liquid Glass Widgets) 官方中文示例工程
+# 声明该示例应用为私有包，禁止误发布至 pub.dev 共有仓库
 publish_to: 'none'
+# 定义语义化版本号与构建序号
 version: 1.0.0+1
 
+# 声明支持的 Dart SDK 版本范围约束
 environment:
+  # 最低支持 Dart 3.5.0，最高兼容至 4.0.0 以下
   sdk: '>=3.5.0 <4.0.0'
 
+# 声明项目所需的所有生产环境依赖库
 dependencies:
+  # 引入 Flutter 基础核心框架 SDK
   flutter:
+    # 依赖指定来自本地 Flutter SDK
+    sdk: flutter
+  # 引入 Flutter 官方本地化国际化语言包（用于支持完整的中文语言环境）
+  flutter_localizations:
+    # 依赖指定来自本地 Flutter SDK
     sdk: flutter
 
-  # Local package
+  # 引入上级目录中的 liquid_glass_widgets 流体玻璃核心组件库
   liquid_glass_widgets:
+    # 指向上级主库目录所在路径
     path: ../
 
-  # Required dependencies
+  # 引入 iOS 风格的 Cupertino 拟真图标库
   cupertino_icons: ^1.0.8
+  # 引入 SVG 矢量图形渲染解析支持库
   flutter_svg: ^2.0.10+1
+  # 引入高性能原生视频解码与播放控制库
   video_player: ^2.11.0
+  # 引入跨平台 Webview 混合网页视图渲染库
   webview_flutter: ^4.13.1
+
+# 声明开发与测试阶段所使用的依赖项
 dev_dependencies:
+  # 引入 Flutter 官方单元测试与控件测试框架
   flutter_test:
+    # 依赖指定来自本地 Flutter SDK
     sdk: flutter
+  # 引入官方代码风格规范与静态语法分析规则集合
   flutter_lints: ^5.0.0
 
+# Flutter 框架专属资源与资产打包配置项
 flutter:
+  # 启用谷歌 Material Design 图标与排版资源集成
   uses-material-design: true
+  # 声明应用程序所需的自定义字体族
   fonts:
+    # 定义苹果 SF Symbols 拟真符号字体名称
     - family: SFSymbols
+      # 列出字体族所包含的具体字体文件路径列表
       fonts:
+        # 指定 SFSymbols 字体在 assets 中的真实相对文件路径
         - asset: assets/fonts/SFSymbols.ttf
+  # 声明应用程序打包时需要内嵌的静态图片与资源清单
   assets:
+    # 浅色模式全局高清壁纸背景图
     - assets/wallpaper.jpg
+    # 深色模式全局暗黑流体玻璃壁纸
     - assets/wallpaper_dark.jpg
+    # 高清山脉风景测试图片
     - assets/mountain_landscape.jpg
+    # 宠物斗牛犬图像素材
     - assets/bulldog.jpeg
+    # 新闻板块品牌 Logo 矢量图标
     - assets/news_logo.svg
+    # 音频流体控制矢量图标
     - assets/audio.svg
+    # 关注与订阅功能矢量图标
     - assets/following.svg
+    # 新闻详情与网格封面图资源目录
     - assets/news_images/
+    # 底部模态抽屉展示所需图标与图片资源目录
     - assets/modal_sheet_showcase/
+    # 播客封面与音频流体展示专用图片资源目录
     - assets/podcast_images/
