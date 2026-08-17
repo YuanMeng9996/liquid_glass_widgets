@@ -229,19 +229,30 @@ const _kThemePresets = [
 // ── Standard 轻量级着色器各组件默认参数 ──────────────────────────────────────
 // 胶囊指示器的轻量拟合默认参数
 const _kPillDefault = _Preset(
-  thickness: 1.0, ambient: 0.28, glow: 0.50, light: 1.0,
+  thickness: 1.0,
+  ambient: 0.28,
+  glow: 0.50,
+  light: 1.0,
   blur: 3.0,
   stdOpacityMultiplier: 1.0,
 );
+
 // 按钮组件的轻量拟合默认参数
 const _kBtnDefault = _Preset(
-  thickness: 17, ambient: 0.28, glow: 0.65, light: 0.88,
+  thickness: 17,
+  ambient: 0.28,
+  glow: 0.65,
+  light: 0.88,
   blur: 3.0,
   stdOpacityMultiplier: 1.0,
 );
+
 // 卡片与表面组件的轻量拟合默认参数
 const _kCardDefault = _Preset(
-  thickness: 19, ambient: 0.26, glow: 0.0, light: 0.90,
+  thickness: 19,
+  ambient: 0.26,
+  glow: 0.0,
+  light: 0.90,
   blur: 3.0,
   stdOpacityMultiplier: 1.0,
 );
@@ -256,6 +267,7 @@ void main() async {
   runApp(LiquidGlassWidgets.wrap(
     // 开启自适应画质降级模式
     adaptiveQuality: true,
+    // 根组件
     child: const _App(),
   ));
 }
@@ -389,31 +401,29 @@ class GlassQualityComparisonDemoState
                   // 如果展开了调参面板，则渲染高级控制台
                   if (_showTuning)
                     Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                       child: SizedBox(
                         height: 280,
                         child: Container(
                           decoration: BoxDecoration(
-                            color:
-                                CupertinoColors.black.withValues(alpha: 0.45),
+                            color: CupertinoColors.black.withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                                color: CupertinoColors.white
-                                    .withValues(alpha: 0.1)),
+                                color: CupertinoColors.white.withValues(alpha: 0.1)),
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: SingleChildScrollView(
-                              padding: EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [\n                                  // 旗舰级 3D SDF 参数调优板块
+                                children: [
+                                  // 旗舰级 3D SDF 参数调优板块
                                   _buildPremiumTuningPanel(),
-                                  SizedBox(height: 16),
+                                  const SizedBox(height: 16),
                                   // 标准级 2D 着色器参数拟合板块
                                   _buildStandardTuningPanel(),
-                                  SizedBox(height: 16),
+                                  const SizedBox(height: 16),
                                   // 实时参数数学诊断信息
                                   _buildDiagnosticsPanel(),
                                 ],
@@ -423,10 +433,10 @@ class GlassQualityComparisonDemoState
                         ),
                       ),
                     ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   // 构建双列画质对比标签徽章（PREMIUM vs STANDARD）
                   _buildColumnLabels(),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   // 构建滚动展示的具体对比组件列表
                   Expanded(child: _buildComparisonList()),
                 ],
@@ -442,13 +452,13 @@ class GlassQualityComparisonDemoState
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: const [
               Expanded(
                 // 汉化主标题：画质分级对比
                 child: Text(
@@ -463,7 +473,7 @@ class GlassQualityComparisonDemoState
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // 汉化预设标题：主题预设
           Text(
@@ -475,7 +485,7 @@ class GlassQualityComparisonDemoState
               letterSpacing: 1.2,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           // 水平滚动的主题预设选择器
           SizedBox(
             height: 38,
@@ -502,8 +512,8 @@ class GlassQualityComparisonDemoState
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    margin: EdgeInsets.only(right: 8),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? presetColor.withValues(alpha: 0.2)
@@ -542,7 +552,7 @@ class GlassQualityComparisonDemoState
                             ],
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           preset.name,
                           style: TextStyle(
@@ -562,7 +572,7 @@ class GlassQualityComparisonDemoState
               },
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           // 汉化高级调参折叠开关按钮
           GestureDetector(
@@ -581,15 +591,15 @@ class GlassQualityComparisonDemoState
                   ),
                 ),
                 if (!_showTuning) ...[
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFB830).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     // 汉化徽章：旗舰参数覆盖
-                    child: Text(
+                    child: const Text(
                       '旗舰覆盖',
                       style: TextStyle(
                         color: Color(0xFFFFB830),
@@ -612,7 +622,7 @@ class GlassQualityComparisonDemoState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           '全局旗舰画质配置 (3D SDF Impeller 光学模型)',
           style: TextStyle(
             color: Color(0xFFFFB830),
@@ -621,7 +631,7 @@ class GlassQualityComparisonDemoState
             letterSpacing: 0.8,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _Slider('不透明度', _baseOpacity, 0.01, 1.0,
             (v) => setState(() => _baseOpacity = v),
             color: CupertinoColors.white),
@@ -654,7 +664,7 @@ class GlassQualityComparisonDemoState
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               '仅标准画质微调  ·  旗舰画质已锁定对比',
               style: TextStyle(
                   color: Color(0xFF5AC8FA),
@@ -671,14 +681,14 @@ class GlassQualityComparisonDemoState
                 });
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: const Color(0xFF5AC8FA).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                       color: const Color(0xFF5AC8FA).withValues(alpha: 0.3)),
                 ),
-                Text(
+                child: const Text(
                   '恢复默认值',
                   style: TextStyle(
                     color: Color(0xFF5AC8FA),
@@ -691,7 +701,7 @@ class GlassQualityComparisonDemoState
             ),
           ],
         ),
-        SizedBox(height: 2, width: double.infinity),
+        const SizedBox(height: 2, width: double.infinity),
         Text(
           '饱和度 → 背景增强  ·  环境光 → 亮度提升  ·  辉光 → 边缘高光',
           style: TextStyle(
@@ -699,7 +709,7 @@ class GlassQualityComparisonDemoState
               fontSize: 8,
               fontFamily: 'monospace'),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _PresetSection(
             label: '● 胶囊 / 动态指示器',
             color: const Color(0xFF5AC8FA),
@@ -708,7 +718,7 @@ class GlassQualityComparisonDemoState
             thicknessMin: 0.1,
             thicknessMax: 8.0,
             thicknessLabel: '边缘宽度'),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _PresetSection(
             label: '● 拟真玻璃按钮',
             color: const Color(0xFF4ADE80),
@@ -717,7 +727,7 @@ class GlassQualityComparisonDemoState
             thicknessMin: 0.0,
             thicknessMax: 30.0,
             thicknessLabel: '厚度'),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         _PresetSection(
             label: '● 磨砂卡片 / 表面底板',
             color: const Color(0xFFBB86FC),
@@ -743,9 +753,9 @@ class GlassQualityComparisonDemoState
               fontWeight: FontWeight.bold,
               letterSpacing: 0.8),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
-          '胶囊  th=${_pill.thickness.toStringAsFixed(1)} amb=${_pill.ambient.toStringAsFixed(3)}\\n'
+          '胶囊  th=${_pill.thickness.toStringAsFixed(1)} amb=${_pill.ambient.toStringAsFixed(3)}\n'
           '      glow=${_pill.glow.toStringAsFixed(2)} li=${_pill.light.toStringAsFixed(2)} blur=${_pill.blur.toStringAsFixed(1)}',
           style: TextStyle(
             color: const Color(0xFF5AC8FA).withValues(alpha: 0.9),
@@ -753,9 +763,9 @@ class GlassQualityComparisonDemoState
             fontFamily: 'monospace',
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
-          '按钮  th=${_btn.thickness.toStringAsFixed(0)} amb=${_btn.ambient.toStringAsFixed(3)}\\n'
+          '按钮  th=${_btn.thickness.toStringAsFixed(0)} amb=${_btn.ambient.toStringAsFixed(3)}\n'
           '      glow=${_btn.glow.toStringAsFixed(2)} li=${_btn.light.toStringAsFixed(2)} blur=${_btn.blur.toStringAsFixed(1)}',
           style: TextStyle(
             color: const Color(0xFF4ADE80).withValues(alpha: 0.9),
@@ -763,9 +773,9 @@ class GlassQualityComparisonDemoState
             fontFamily: 'monospace',
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
-          '卡片  th=${_card.thickness.toStringAsFixed(0)} amb=${_card.ambient.toStringAsFixed(3)}\\n'
+          '卡片  th=${_card.thickness.toStringAsFixed(0)} amb=${_card.ambient.toStringAsFixed(3)}\n'
           '      glow=${_card.glow.toStringAsFixed(2)} li=${_card.light.toStringAsFixed(2)} blur=${_card.blur.toStringAsFixed(1)}',
           style: TextStyle(
             color: const Color(0xFFBB86FC).withValues(alpha: 0.9),
@@ -780,14 +790,14 @@ class GlassQualityComparisonDemoState
   // 汉化列标题徽章
   Widget _buildColumnLabels() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: [
+        children: const [
           Expanded(
             child: _QualityBadge(
               label: '旗舰画质 (PREMIUM)',
               subtitle: 'Impeller 引擎 · 3D SDF 光学',
-              color: const Color(0xFFFFB830),
+              color: Color(0xFFFFB830),
             ),
           ),
           SizedBox(width: 12),
@@ -795,7 +805,7 @@ class GlassQualityComparisonDemoState
             child: _QualityBadge(
               label: '标准画质 (STANDARD)',
               subtitle: 'Skia/Web · 2D 着色器拟合',
-              color: const Color(0xFF5AC8FA),
+              color: Color(0xFF5AC8FA),
             ),
           ),
         ],
@@ -806,7 +816,7 @@ class GlassQualityComparisonDemoState
   // 汉化对比组件清单
   Widget _buildComparisonList() {
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, 40),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
       child: Column(
         children: [
           // ── GlassButton ─────────────────────────────────────────────────
@@ -817,7 +827,7 @@ class GlassQualityComparisonDemoState
               settings: _kGlass,
               quality: GlassQuality.premium,
               onTap: () {},
-              icon: Icon(CupertinoIcons.play_fill),
+              icon: const Icon(CupertinoIcons.play_fill),
               label: '点击体验',
             ),
             standard: GlassButton(
@@ -825,12 +835,12 @@ class GlassQualityComparisonDemoState
               settings: _kGlassBtn,
               quality: GlassQuality.standard,
               onTap: () {},
-              icon: Icon(CupertinoIcons.play_fill),
+              icon: const Icon(CupertinoIcons.play_fill),
               label: '点击体验',
             ),
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // ── GlassSegmentedControl ────────────────────────────────────────
           _ComparisonRow(
@@ -863,7 +873,7 @@ class GlassQualityComparisonDemoState
             ),
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // ── GlassCard ───────────────────────────────────────────────────
           _ComparisonRow(
@@ -873,11 +883,11 @@ class GlassQualityComparisonDemoState
               settings: _kGlass,
               quality: GlassQuality.premium,
               child: Padding(
-                padding: EdgeInsets.all(14),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       '旗舰 3D 渲染',
                       style: TextStyle(
                         color: CupertinoColors.white,
@@ -885,7 +895,7 @@ class GlassQualityComparisonDemoState
                         fontSize: 13,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       '3D 倒角 · 镜面光学反射',
                       style: TextStyle(
@@ -903,11 +913,11 @@ class GlassQualityComparisonDemoState
               settings: _kGlassCard,
               quality: GlassQuality.standard,
               child: Padding(
-                padding: EdgeInsets.all(14),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       '标准 2D 渲染',
                       style: TextStyle(
                         color: CupertinoColors.white,
@@ -915,7 +925,7 @@ class GlassQualityComparisonDemoState
                         fontSize: 13,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       '2D 轮廓 · 归一化厚度与光照',
                       style: TextStyle(
@@ -930,7 +940,7 @@ class GlassQualityComparisonDemoState
             ),
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // ── GlassTabBar ──────────────────────────────────────────────────
           _FullWidthRow(
@@ -962,7 +972,7 @@ class GlassQualityComparisonDemoState
             ),
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // ── GlassSwitch ───────────────────────────────────────────────────
           _ComparisonRow(
@@ -979,7 +989,7 @@ class GlassQualityComparisonDemoState
             ),
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // ── GlassSlider ───────────────────────────────────────────────────
           _FullWidthRow(
@@ -1022,7 +1032,7 @@ class _QualityBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(10),
@@ -1070,7 +1080,7 @@ class _ComparisonRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.only(bottom: 10),
           child: Text(
             label,
             style: TextStyle(
@@ -1087,7 +1097,7 @@ class _ComparisonRow extends StatelessWidget {
             Expanded(
               child: Center(child: premium),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Center(child: standard),
             ),
@@ -1116,7 +1126,7 @@ class _FullWidthRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.only(bottom: 10),
           child: Text(
             label,
             style: TextStyle(
@@ -1129,16 +1139,16 @@ class _FullWidthRow extends StatelessWidget {
         ),
         Row(
           children: [
-            _QualityPill('旗舰', const Color(0xFFFFB830)),
-            SizedBox(width: 10),
+            const _QualityPill('旗舰', Color(0xFFFFB830)),
+            const SizedBox(width: 10),
             Expanded(child: premiumWidget),
           ],
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Row(
           children: [
-            _QualityPill('标准', const Color(0xFF5AC8FA)),
-            SizedBox(width: 10),
+            const _QualityPill('标准', Color(0xFF5AC8FA)),
+            const SizedBox(width: 10),
             Expanded(child: standardWidget),
           ],
         ),
@@ -1159,7 +1169,7 @@ class _QualityPill extends StatelessWidget {
     return RotatedBox(
       quarterTurns: 3,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(6),
@@ -1211,7 +1221,7 @@ class _PresetSectionState extends State<_PresetSection> {
     final p = widget.preset;
     final c = widget.color;
     return Container(
-      padding: EdgeInsets.fromLTRB(8, 6, 8, 4),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8),
@@ -1230,7 +1240,7 @@ class _PresetSectionState extends State<_PresetSection> {
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.1)),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Flexible(
                   child: Text(
                     'th=${p.thickness.toStringAsFixed(0)} '
@@ -1246,7 +1256,7 @@ class _PresetSectionState extends State<_PresetSection> {
                         fontFamily: 'monospace'),
                   ),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(_expanded ? '▲' : '▼',
                     style: TextStyle(
                         color: c.withValues(alpha: 0.5), fontSize: 8)),
@@ -1254,7 +1264,7 @@ class _PresetSectionState extends State<_PresetSection> {
             ),
           ),
           if (_expanded) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             _Slider(
                 widget.thicknessLabel,
                 p.thickness,
