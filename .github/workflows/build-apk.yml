@@ -1,0 +1,239 @@
+# ============================================================================
+# 工作流：Build APK
+# 目标：为 liquid_glass_widgets 的 example 应用构建可安装的 Android APK
+# 背景：example/android/ 被根 .gitignore 排除，CI 必须先 flutter create 再 build
+# 对齐：触发风格 / flutter-action / checkout 版本与现有 .github/workflows/ci.yml 保持一致
+# 依赖插件：
+#   - actions/checkout@v7          # 检出仓库
+#   - actions/setup-java@v4        # 安装 JDK 17（Android 构建需要）
+#   - subosito/flutter-action@v2   # 安装 Flutter SDK
+#   - actions/upload-artifact@v4   # 上传 APK 产物
+#   - softprops/action-gh-release@v2  # （可选）tag 时挂到 GitHub Release
+# ============================================================================
+name: Build APK  # Actions 列表中显示的工作流名称
+
+# ----------------------------------------------------------------------------
+# 触发条件
+# ----------------------------------------------------------------------------
+on:  # 工作流触发事件根节点
+  push:  # 代码推送事件（branches 与 tags 必须写在同一个 push 下）
+    branches:  # 分支推送
+      - main  # 仅 main
+    tags:  # 标签推送
+      - 'v*'  # 例如 v0.25.0
+    paths:  # 路径过滤：无关文件变更不触发（tag 推送通常仍会跑，因 tag 常独立）
+      - 'lib/**'  # 包实现
+      - 'example/**'  # 示例应用
+      - 'shaders/**'  # 片元着色器
+      - 'pubspec.yaml'  # 包元数据与依赖
+      - '.github/workflows/build-apk.yml'  # 本工作流
+  pull_request:  # PR 事件
+    branches:  # 目标分支
+      - main  # 向 main 提 PR 时构建，方便审阅下载 APK
+    paths:  # 同 push 的路径过滤
+      - 'lib/**'  # 包实现
+      - 'example/**'  # 示例
+      - 'shaders/**'  # 着色器
+      - 'pubspec.yaml'  # 依赖
+      - '.github/workflows/build-apk.yml'  # 工作流自身
+  workflow_dispatch:  # 手动触发（Actions 页 “Run workflow”）
+    inputs:  # 手动输入参数
+      build_mode:  # 参数：构建模式
+        description: 'APK 构建模式'  # 界面说明文字
+        required: true  # 必填
+        default: 'release'  # 默认 release
+        type: choice  # 下拉框
+        options:  # 可选项
+          - release  # 发布构建
+          - debug  # 调试构建
+      flutter_channel:  # 参数：Flutter 渠道
+        description: 'Flutter 渠道'  # 界面说明
+        required: true  # 必填
+        default: 'stable'  # 默认 stable
+        type: choice  # 下拉
+        options:  # 选项
+          - stable  # 稳定渠道
+          - beta  # Beta 渠道
+
+# ----------------------------------------------------------------------------
+# 并发：同一分支/标签上只保留最新一次运行
+# ----------------------------------------------------------------------------
+concurrency:  # 并发控制根节点
+  group: ${{ github.workflow }}-${{ github.ref }}  # 分组键 = 工作流名 + ref
+  cancel-in-progress: true  # 取消同组进行中的旧 run
+
+# ----------------------------------------------------------------------------
+# 默认权限：只读；发布 Release 的 job 再单独提权
+# ----------------------------------------------------------------------------
+permissions:  # 默认 GITHUB_TOKEN 权限
+  contents: read  # 仅允许读仓库内容
+
+# ============================================================================
+# Job 1：构建 APK 并上传 Artifact
+# ============================================================================
+jobs:  # jobs 根节点
+  build-apk:  # Job 唯一 ID
+    name: Build Example APK  # UI 显示名
+    runs-on: ubuntu-latest  # Linux runner，适合 Android 命令行构建
+    timeout-minutes: 45  # 超时保护
+
+    outputs:  # 供后续 release job 使用的输出
+      apk_name: ${{ steps.rename.outputs.apk_name }}  # APK 文件名
+      short_sha: ${{ steps.rename.outputs.short_sha }}  # 短 commit
+
+    steps:  # 本 Job 的步骤列表
+      # ----------------------------------------------------------------------
+      # 1) 检出源码
+      # 插件：actions/checkout@v7
+      # ----------------------------------------------------------------------
+      - name: Checkout repository  # 步骤名
+        uses: actions/checkout@v7  # 拉取当前触发的 commit
+
+      # ----------------------------------------------------------------------
+      # 2) 安装 JDK 17
+      # 插件：actions/setup-java@v4
+      # 原因：Flutter Android 构建依赖 JVM / Gradle，AGP 需 Java 17
+      # ----------------------------------------------------------------------
+      - name: Set up JDK 17  # 步骤名
+        uses: actions/setup-java@v4  # 安装 Java
+        with:  # with 参数块
+          distribution: 'temurin'  # Temurin 发行版
+          java-version: '17'  # 主版本 17
+
+      # ----------------------------------------------------------------------
+      # 3) 安装 Flutter
+      # 插件：subosito/flutter-action@v2
+      # 约束：根 pubspec.yaml 声明 flutter: ">=3.41.0"
+      # ----------------------------------------------------------------------
+      - name: Set up Flutter  # 步骤名
+        uses: subosito/flutter-action@v2  # 安装 Flutter
+        with:  # 参数
+          channel: ${{ github.event.inputs.flutter_channel || 'stable' }}  # 手动优先，否则 stable
+          cache: true  # 开启缓存加速
+
+      # ----------------------------------------------------------------------
+      # 4) 打印工具链，方便 Actions 日志排障
+      # ----------------------------------------------------------------------
+      - name: Show toolchain versions  # 步骤名
+        run: |  # 多行 bash（默认 shell）
+          java -version  # Java 版本
+          flutter --version  # Flutter 版本
+          flutter doctor -v  # 环境自检（含 Android toolchain）
+
+      # ----------------------------------------------------------------------
+      # 5) 根目录 pub get：保证 path 依赖 liquid_glass_widgets 可被 example 解析
+      # ----------------------------------------------------------------------
+      - name: Install package dependencies  # 步骤名
+        run: flutter pub get  # 解析并下载根包依赖
+
+      # ----------------------------------------------------------------------
+      # 6) 为 example 生成 Android 平台目录（仓库中被 gitignore）
+      # 命令说明：
+      #   flutter create . --platforms=android
+      #   - 只补充 android/，不覆盖已有 lib/main.dart
+      #   - --project-name 与 example/pubspec.yaml 的 name 对齐更稳妥
+      # ----------------------------------------------------------------------
+      - name: Generate Android platform for example  # 步骤名
+        working-directory: example  # 切换到 example 目录
+        run: |  # 多行脚本
+          flutter create . --platforms=android --project-name liquid_glass_widgets_example  # 生成 android/
+          flutter pub get  # 再次获取依赖并生成插件注册文件
+
+      # ----------------------------------------------------------------------
+      # 7) 接受 Android SDK 许可证（部分镜像需要；失败不阻断）
+      # ----------------------------------------------------------------------
+      - name: Accept Android licenses  # 步骤名
+        run: |  # 脚本
+          set +e  # 关闭 “命令失败即退出”
+          yes | flutter doctor --android-licenses  # 自动确认全部许可证
+          exit 0  # 本步始终标为成功
+
+      # ----------------------------------------------------------------------
+      # 8) 执行 flutter build apk
+      # 产物默认位置：
+      #   release -> example/build/app/outputs/flutter-apk/app-release.apk
+      #   debug   -> example/build/app/outputs/flutter-apk/app-debug.apk
+      # 说明：flutter create 生成的模板 release 通常 signingConfig = debug，
+      #       适合开源示例在 CI 产出可安装试玩包；正式上架需自备 keystore secrets
+      # ----------------------------------------------------------------------
+      - name: Build APK  # 步骤名
+        working-directory: example  # 在 example 构建
+        run: |  # 脚本
+          MODE="${{ github.event.inputs.build_mode || 'release' }}"  # 确定模式
+          echo "Building APK in mode: ${MODE}"  # 日志
+          if [ "${MODE}" = "debug" ]; then  # debug 分支
+            flutter build apk --debug  # 打 debug 包
+          else  # release 分支
+            flutter build apk --release  # 打 release 包
+          fi  # 结束分支
+          ls -lah build/app/outputs/flutter-apk/  # 列出产物确认
+
+      # ----------------------------------------------------------------------
+      # 9) 重命名 APK：liquid_glass_widgets_example-<mode>-<sha>.apk
+      # ----------------------------------------------------------------------
+      - name: Rename APK artifact  # 步骤名
+        id: rename  # 供 outputs 引用
+        working-directory: example  # example 目录
+        shell: bash  # 使用 bash
+        run: |  # 脚本
+          MODE="${{ github.event.inputs.build_mode || 'release' }}"  # 模式
+          SHORT_SHA="${GITHUB_SHA::7}"  # 短 SHA
+          if [ "${MODE}" = "debug" ]; then  # 选择源文件
+            SRC="build/app/outputs/flutter-apk/app-debug.apk"  # debug 源
+          else  # release
+            SRC="build/app/outputs/flutter-apk/app-release.apk"  # release 源
+          fi  # 结束
+          DEST="build/app/outputs/flutter-apk/liquid_glass_widgets_example-${MODE}-${SHORT_SHA}.apk"  # 目标名
+          cp "${SRC}" "${DEST}"  # 复制改名
+          echo "apk_path=${DEST}" >> "$GITHUB_OUTPUT"  # 输出相对 example 的路径
+          echo "apk_name=$(basename "${DEST}")" >> "$GITHUB_OUTPUT"  # 输出纯文件名
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"  # 输出短 SHA
+          echo "Renamed APK -> ${DEST}"  # 日志
+
+      # ----------------------------------------------------------------------
+      # 10) 上传 Artifact，供 run 页面下载
+      # 插件：actions/upload-artifact@v4
+      # ----------------------------------------------------------------------
+      - name: Upload APK artifact  # 步骤名
+        uses: actions/upload-artifact@v4  # 上传插件
+        with:  # 参数
+          name: liquid-glass-example-apk  # Artifact 显示名
+          path: example/${{ steps.rename.outputs.apk_path }}  # 仓库根相对路径
+          if-no-files-found: error  # 没有文件则失败
+          retention-days: 14  # 保留 14 天
+
+  # ==========================================================================
+  # Job 2：当 push 的是 v* tag 时，把 APK 挂到 GitHub Release
+  # 插件：softprops/action-gh-release@v2
+  # ==========================================================================
+  release-apk:  # Job ID
+    name: Attach APK to GitHub Release  # 显示名
+    needs: build-apk  # 依赖构建成功
+    if: startsWith(github.ref, 'refs/tags/v')  # 仅 tag 触发
+    runs-on: ubuntu-latest  # runner
+    permissions:  # 本 job 需要写 contents 才能创建/更新 Release
+      contents: write  # 允许创建 release 与上传资产
+
+    steps:  # 步骤
+      # ----------------------------------------------------------------------
+      # 下载上一 job 上传的 Artifact
+      # 插件：actions/download-artifact@v4
+      # ----------------------------------------------------------------------
+      - name: Download APK artifact  # 步骤名
+        uses: actions/download-artifact@v4  # 下载
+        with:  # 参数
+          name: liquid-glass-example-apk  # 与 upload 的 name 一致
+          path: dist  # 下载到 dist/
+
+      # ----------------------------------------------------------------------
+      # 创建或更新 GitHub Release，并附带 APK
+      # 插件：softprops/action-gh-release@v2
+      # ----------------------------------------------------------------------
+      - name: Create / update GitHub Release  # 步骤名
+        uses: softprops/action-gh-release@v2  # Release 插件
+        with:  # 参数
+          files: dist/*  # 上传 dist 下所有 APK
+          generate_release_notes: true  # 自动生成发布说明
+          fail_on_unmatched_files: true  # 没有文件则失败
+        env:  # 环境变量
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用内置 token
